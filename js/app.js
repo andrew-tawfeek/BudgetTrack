@@ -908,6 +908,15 @@ document.addEventListener('keydown', (e) => {
     
     const csvPreviewOpen = document.getElementById('csvPreviewModal').classList.contains('active');
     
+    // Check if user is currently editing text in an input field
+    const activeElement = document.activeElement;
+    const isEditingText = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' || 
+        activeElement.tagName === 'SELECT' ||
+        activeElement.isContentEditable
+    );
+    
     if (e.key === 'Escape') {
         if (csvPreviewOpen) {
             closeCsvPreview();
@@ -938,8 +947,8 @@ document.addEventListener('keydown', (e) => {
         openDayModal(focusedDay);
     }
     
-    // Arrow key navigation for days
-    if (!modalOpen && calendarActive) {
+    // Arrow key navigation for days (only if not editing text)
+    if (!modalOpen && calendarActive && !isEditingText) {
         if (e.key === 'ArrowLeft') {
             e.preventDefault();
             navigateDay(-1);
