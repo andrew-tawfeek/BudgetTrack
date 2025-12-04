@@ -267,44 +267,46 @@ function openDayModal(day) {
     document.getElementById('modalTitle').textContent = 
         `${monthNames[currentMonth]} ${day}, ${currentYear}`;
     
-    // Show day summary and initialize balance adjustment
-    updateDaySummary();
+    // Hide add transaction form by default
+    document.getElementById('addTransactionForm').style.display = 'none';
+    document.getElementById('balanceEditForm').style.display = 'none';
+    
+    // Update balance display and render transactions
+    updateBalanceDisplay();
     renderBillsList();
     document.getElementById('dayModal').classList.add('active');
-    document.getElementById('billName').focus();
 }
 
-function updateDaySummary() {
-    const bills = getBillsForDate(selectedDate);
-    const income = bills.filter(b => b.amount > 0).reduce((sum, b) => sum + b.amount, 0);
-    const expenses = bills.filter(b => b.amount < 0).reduce((sum, b) => sum + Math.abs(b.amount), 0);
-    const net = income - expenses;
-    
-    const summaryEl = document.getElementById('daySummary');
-    summaryEl.innerHTML = `
-        <div class="summary-item income-summary">
-            <span>Income</span>
-            <span>+$${income.toFixed(2)}</span>
-        </div>
-        <div class="summary-item expense-summary">
-            <span>Expenses</span>
-            <span>-$${expenses.toFixed(2)}</span>
-        </div>
-        <div class="summary-item net-summary ${net >= 0 ? 'net-positive' : 'net-negative'}">
-            <span>Net</span>
-            <span>${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span>
-        </div>
-    `;
-    
-    // Update balance adjustment input with current balance
-    updateBalanceAdjustmentInput();
+function toggleAddTransactionForm() {
+    const form = document.getElementById('addTransactionForm');
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        document.getElementById('billName').focus();
+    } else {
+        form.style.display = 'none';
+    }
 }
 
-function updateBalanceAdjustmentInput() {
+function toggleBalanceEdit() {
+    const editForm = document.getElementById('balanceEditForm');
+    if (editForm.style.display === 'none') {
+        const balances = calculateBalances(selectedDate.getFullYear(), selectedDate.getMonth());
+        const dayBalance = balances[selectedDate.getDate()];
+        document.getElementById('balanceAdjustment').value = dayBalance.toFixed(2);
+        editForm.style.display = 'flex';
+        document.getElementById('balanceAdjustment').focus();
+    } else {
+        editForm.style.display = 'none';
+    }
+}
+
+function updateBalanceDisplay() {
     const balances = calculateBalances(selectedDate.getFullYear(), selectedDate.getMonth());
     const dayBalance = balances[selectedDate.getDate()];
-    document.getElementById('balanceAdjustment').value = dayBalance.toFixed(2);
+    document.getElementById('dayBalanceAmount').textContent = `$${dayBalance.toFixed(2)}`;
 }
+
+
 
 function adjustBalance() {
     const newBalance = parseFloat(document.getElementById('balanceAdjustment').value);
@@ -323,6 +325,7 @@ function adjustBalance() {
     
     if (Math.abs(difference) < 0.01) {
         showToast('Balance is already at this amount');
+        toggleBalanceEdit();
         return;
     }
     
@@ -339,9 +342,10 @@ function adjustBalance() {
     
     data.bills.push(bill);
     saveToStorage();
-    updateDaySummary();
+    updateBalanceDisplay();
     renderBillsList();
     renderCalendar();
+    toggleBalanceEdit();
     
     showToast(`Balance adjusted by ${difference >= 0 ? '+' : ''}$${difference.toFixed(2)}`);
 }
@@ -354,6 +358,8 @@ function closeModal() {
     document.getElementById('billCategory').value = 'other';
     document.getElementById('billEndDate').value = '';
     document.getElementById('balanceAdjustment').value = '';
+    document.getElementById('addTransactionForm').style.display = 'none';
+    document.getElementById('balanceEditForm').style.display = 'none';
 }
 
 function addBill() {
@@ -382,16 +388,17 @@ function addBill() {
 
     data.bills.push(bill);
     saveToStorage();
-    updateDaySummary();
+    updateBalanceDisplay();
     renderBillsList();
     renderCalendar();
 
-    // Reset form
+    // Reset form and hide it
     document.getElementById('billName').value = '';
     document.getElementById('billAmount').value = '';
     document.getElementById('billType').value = 'one-time';
     document.getElementById('billCategory').value = 'other';
     document.getElementById('billEndDate').value = '';
+    document.getElementById('addTransactionForm').style.display = 'none';
     
     // Show confirmation
     showToast(`${name} added successfully!`);

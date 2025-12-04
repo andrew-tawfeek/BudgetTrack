@@ -147,26 +147,39 @@
     </div>
 
     <div class="modal" id="dayModal">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content day-modal-content">
+            <div class="modal-header day-modal-header">
                 <h2 id="modalTitle"></h2>
-                <button class="close-btn" onclick="closeModal()">×</button>
-            </div>
-
-            <div class="day-summary" id="daySummary"></div>
-
-            <div class="balance-adjustment-section">
-                <h4>Balance Adjustment</h4>
-                <div class="balance-adjustment-form">
-                    <div class="form-group">
-                        <label for="balanceAdjustment">Set New Balance:</label>
-                        <input type="number" id="balanceAdjustment" step="0.01" placeholder="Enter balance">
-                    </div>
-                    <button class="btn" onclick="adjustBalance()">Update</button>
+                <div class="modal-header-actions">
+                    <button class="add-transaction-btn" onclick="toggleAddTransactionForm()" title="Add Transaction">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button class="close-btn" onclick="closeModal()">×</button>
                 </div>
             </div>
 
-            <div class="add-transaction-form">
+            <div class="day-balance-header">
+                <div class="balance-display">
+                    <span class="balance-label">Balance:</span>
+                    <span class="balance-amount" id="dayBalanceAmount">$0.00</span>
+                    <button class="edit-balance-btn" onclick="toggleBalanceEdit()" title="Edit Balance">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="balance-edit-form" id="balanceEditForm" style="display: none;">
+                    <input type="number" id="balanceAdjustment" step="0.01" placeholder="Enter balance">
+                    <button class="btn btn-sm" onclick="adjustBalance()">Update</button>
+                    <button class="btn btn-sm btn-secondary" onclick="toggleBalanceEdit()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="add-transaction-form" id="addTransactionForm" style="display: none;">
                 <h3>Add Transaction</h3>
                 
                 <div class="form-row">
