@@ -4,31 +4,68 @@
     box-sizing: border-box;
 }
 
+:root {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f9fafb;
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border-color: #e5e7eb;
+    --border-color-light: #f3f4f6;
+    --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.08);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --input-bg: #ffffff;
+    --input-border: #d1d5db;
+    --hover-bg: #f3f4f6;
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --border-color: #374151;
+    --border-color-light: #4b5563;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 10px 40px rgba(0,0,0,0.4);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --input-bg: #374151;
+    --input-border: #4b5563;
+    --hover-bg: #374151;
+    --modal-overlay: rgba(0, 0, 0, 0.75);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: #f5f7fa;
+    background: var(--bg-primary);
     min-height: 100vh;
     padding: 12px;
-    color: #1a202c;
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
     max-width: 1600px;
     margin: 0 auto;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow);
     overflow: hidden;
+    transition: background-color 0.3s ease;
 }
 
 .header {
-    background: white;
-    color: #1a202c;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 16px 24px;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .header-logo {
@@ -42,20 +79,55 @@ body {
     margin: 0;
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: #1a202c;
+    color: var(--text-primary);
+    flex: 1;
 }
 
 .header p {
     display: none;
 }
 
+.dark-mode-toggle {
+    background: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+.dark-mode-toggle:hover {
+    background: var(--border-color);
+}
+
+.dark-mode-toggle .sun-icon {
+    display: none;
+}
+
+.dark-mode-toggle .moon-icon {
+    display: block;
+}
+
+body.dark-mode .dark-mode-toggle .sun-icon {
+    display: block;
+}
+
+body.dark-mode .dark-mode-toggle .moon-icon {
+    display: none;
+}
+
 /* Tabs */
 .tabs {
     display: flex;
-    background: white;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
     padding: 0 24px;
     gap: 4px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .tab-btn {
@@ -64,7 +136,7 @@ body {
     padding: 10px 18px;
     font-size: 0.875rem;
     cursor: pointer;
-    color: #6b7280;
+    color: var(--text-muted);
     border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
     font-weight: 500;
@@ -73,7 +145,7 @@ body {
 
 .tab-btn:hover {
     color: #2563eb;
-    background: #f9fafb;
+    background: var(--hover-bg);
 }
 
 .tab-btn.active {
@@ -95,10 +167,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 12px 24px;
-    background: #fafbfc;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
     flex-wrap: wrap;
     gap: 12px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .month-nav {
@@ -108,9 +181,9 @@ body {
 }
 
 .month-nav button {
-    background: white;
-    color: #374151;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
     padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
@@ -120,9 +193,9 @@ body {
 }
 
 .month-nav button:hover {
-    background: #f9fafb;
-    border-color: #d1d5db;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    background: var(--hover-bg);
+    border-color: var(--input-border);
+    box-shadow: var(--shadow-sm);
 }
 
 .month-display {
@@ -190,12 +263,12 @@ body {
 
 .day-cell {
     min-height: 100px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    background: white;
+    background: var(--bg-secondary);
     position: relative;
     overflow: hidden;
 }
@@ -207,13 +280,13 @@ body {
 }
 
 .day-cell.empty {
-    background: #fafbfc;
+    background: var(--bg-tertiary);
     cursor: default;
-    border-color: #f3f4f6;
+    border-color: var(--border-color-light);
 }
 
 .day-cell.empty:hover {
-    border-color: #f3f4f6;
+    border-color: var(--border-color-light);
     box-shadow: none;
     transform: none;
 }
@@ -222,7 +295,7 @@ body {
     font-weight: 600;
     font-size: 0.9375rem;
     margin-bottom: 6px;
-    color: #1a202c;
+    color: var(--text-primary);
     letter-spacing: -0.01em;
 }
 
@@ -241,15 +314,25 @@ body {
     background: #d1fae5;
 }
 
+body.dark-mode .balance-positive {
+    color: #6ee7b7;
+    background: rgba(5, 150, 105, 0.2);
+}
+
 .balance-negative {
     color: #dc2626;
     background: #fee2e2;
 }
 
+body.dark-mode .balance-negative {
+    color: #fca5a5;
+    background: rgba(220, 38, 38, 0.2);
+}
+
 .bills-preview {
     font-size: 0.75em;
     margin-top: 8px;
-    color: #6c757d;
+    color: var(--text-muted);
     max-height: 60px;
     overflow-y: auto;
 }
@@ -326,7 +409,7 @@ body {
     display: block;
     margin-bottom: 6px;
     font-weight: 600;
-    color: #495057;
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
@@ -334,11 +417,12 @@ body {
 .form-group select {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--input-border);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.2s;
-    background: white;
+    background: var(--input-bg);
+    color: var(--text-primary);
 }
 
 .form-group input:focus,
@@ -380,21 +464,21 @@ body {
 }
 
 .bill-item {
-    background: #fafbfc;
+    background: var(--bg-tertiary);
     padding: 16px;
     margin-bottom: 12px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     border-left: 3px solid #2563eb;
     transition: all 0.2s;
 }
 
 .bill-item:hover {
-    background: #f9fafb;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: var(--hover-bg);
+    box-shadow: var(--shadow-sm);
 }
 
 .bill-item.income {
@@ -412,13 +496,13 @@ body {
 .bill-name {
     font-weight: 600;
     margin-bottom: 4px;
-    color: #1a202c;
+    color: var(--text-primary);
     letter-spacing: -0.01em;
 }
 
 .bill-details {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 .bill-amount {
@@ -493,17 +577,17 @@ input[type="file"] {
 }
 
 .balance-adjustment-section {
-    background: #fef3c7;
+    background: rgba(251, 191, 36, 0.15);
     padding: 16px;
     border-radius: 8px;
     margin-bottom: 16px;
-    border: 1px solid #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
     border-left: 3px solid #f59e0b;
 }
 
 .balance-adjustment-section h4 {
     margin: 0 0 12px 0;
-    color: #1a202c;
+    color: var(--text-primary);
     font-size: 0.9375rem;
     font-weight: 600;
 }
@@ -556,12 +640,24 @@ input[type="file"] {
     box-shadow: 0 0 0 1px #bfdbfe;
 }
 
+body.dark-mode .day-cell.today {
+    border-color: #3b82f6;
+    background: rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+}
+
 .day-cell.focused {
     border-color: #f59e0b;
     border-width: 2px;
     background: #fffbeb;
     box-shadow: 0 0 0 2px #fbbf24;
     outline: none;
+}
+
+body.dark-mode .day-cell.focused {
+    border-color: #fbbf24;
+    background: rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.4);
 }
 
 .today-badge {
@@ -575,6 +671,11 @@ input[type="file"] {
     margin-left: 6px;
 }
 
+body.dark-mode .today-badge {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
 .today-btn {
     background: #2563eb !important;
     border-color: #2563eb !important;
@@ -582,6 +683,15 @@ input[type="file"] {
 
 .today-btn:hover {
     background: #1d4ed8 !important;
+}
+
+body.dark-mode .today-btn {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+body.dark-mode .today-btn:hover {
+    background: #2563eb !important;
 }
 
 .day-total {
@@ -791,14 +901,14 @@ input[type="file"] {
 /* Bills List Improvements */
 .bills-list-header {
     margin: 20px 0 15px 0;
-    color: #333;
+    color: var(--text-primary);
     padding-bottom: 10px;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .no-bills {
     text-align: center;
-    color: #6c757d;
+    color: var(--text-muted);
     margin: 30px 0;
     font-style: italic;
 }
@@ -816,21 +926,21 @@ input[type="file"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f3f4f6;
+    background: var(--hover-bg);
     border-radius: 8px;
     font-weight: 700;
-    color: #6b7280;
+    color: var(--text-muted);
     letter-spacing: 0.025em;
     flex-shrink: 0;
 }
 
 .recurring-badge {
     font-size: 0.75rem;
-    background: #e5e7eb;
+    background: var(--border-color);
     padding: 3px 10px;
     border-radius: 12px;
     margin-left: 8px;
-    color: #6b7280;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
@@ -840,29 +950,29 @@ input[type="file"] {
 }
 
 .edit-bill, .delete-bill {
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     cursor: pointer;
     font-size: 0.8125rem;
     padding: 7px 12px;
     border-radius: 6px;
     transition: all 0.2s;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 .edit-bill:hover {
-    background: #f0f9ff;
+    background: rgba(37, 99, 235, 0.1);
     border-color: #2563eb;
     color: #2563eb;
 }
 
 .delete-bill {
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 .delete-bill:hover {
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
     border-color: #dc2626;
     color: #dc2626;
 }
@@ -908,25 +1018,26 @@ input[type="file"] {
 }
 
 .bills-preview::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--hover-bg);
     border-radius: 2px;
 }
 
 .bills-preview::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: var(--text-muted);
     border-radius: 2px;
 }
 
 /* Graph Tab Styles */
 .graph-controls, .table-controls {
     padding: 12px 24px;
-    background: #fafbfc;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .graph-controls h2, .table-controls h2 {
     margin-bottom: 12px;
-    color: #1a202c;
+    color: var(--text-primary);
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -947,23 +1058,25 @@ input[type="file"] {
 
 .date-range-controls .form-group label {
     font-size: 0.8125rem;
-    color: #6b7280;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
 .date-range-controls .form-group input[type="date"] {
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--input-border);
     border-radius: 8px;
     font-size: 0.9375rem;
-    background: white;
+    background: var(--input-bg);
+    color: var(--text-primary);
 }
 
 .graph-container {
     padding: 24px;
-    background: white;
+    background: var(--bg-secondary);
     min-height: 350px;
     position: relative;
+    transition: background-color 0.3s ease;
 }
 
 #balanceChart {
@@ -976,14 +1089,15 @@ input[type="file"] {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
     padding: 16px 24px;
-    background: #fafbfc;
+    background: var(--bg-tertiary);
+    transition: background-color 0.3s ease;
 }
 
 .stat-card {
-    background: white;
+    background: var(--bg-secondary);
     padding: 16px;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     text-align: center;
     transition: all 0.2s;
 }
@@ -994,7 +1108,7 @@ input[type="file"] {
 
 .stat-card h3 {
     font-size: 0.6875rem;
-    color: #6b7280;
+    color: var(--text-muted);
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -1004,7 +1118,7 @@ input[type="file"] {
 .stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a202c;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
 }
 
@@ -1025,15 +1139,17 @@ input[type="file"] {
 #transactionTable {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 #transactionTable thead {
-    background: #f9fafb;
-    border-bottom: 2px solid #e5e7eb;
+    background: var(--bg-tertiary);
+    border-bottom: 2px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 #transactionTable th {
@@ -1043,16 +1159,16 @@ input[type="file"] {
     text-transform: uppercase;
     font-size: 0.6875rem;
     letter-spacing: 0.05em;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 #transactionTable tbody tr {
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--border-color-light);
     transition: background 0.2s ease;
 }
 
 #transactionTable tbody tr:hover {
-    background: #fafbfc;
+    background: var(--hover-bg);
 }
 
 #transactionTable tbody tr:last-child {
@@ -1061,7 +1177,7 @@ input[type="file"] {
 
 #transactionTable td {
     padding: 10px 12px;
-    color: #1a202c;
+    color: var(--text-primary);
     font-size: 0.875rem;
 }
 
