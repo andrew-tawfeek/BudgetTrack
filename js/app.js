@@ -104,14 +104,14 @@ function renderCalendar() {
 
         dayCell.innerHTML = `
             <div class="day-number">${day}${isToday ? ' <span class="today-badge">Today</span>' : ''}</div>
+            <div class="day-balance ${balance >= 0 ? 'balance-positive' : 'balance-negative'}">
+                Balance: $${balance.toFixed(2)}
+            </div>
             ${billsOnDay.length > 0 ? `
                 <div class="day-total ${dayTotal >= 0 ? 'total-positive' : 'total-negative'}">
                     ${dayTotal >= 0 ? '+' : ''}$${dayTotal.toFixed(2)}
                 </div>
             ` : ''}
-            <div class="day-balance ${balance >= 0 ? 'balance-positive' : 'balance-negative'}">
-                Balance: $${balance.toFixed(2)}
-            </div>
             <div class="bills-preview">
                 ${billsOnDay.slice(0, 3).map(bill => 
                     `<div class="bill-item-preview ${bill.amount >= 0 ? 'income-preview' : 'expense-preview'}">
