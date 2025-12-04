@@ -1,0 +1,762 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.month-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.month-nav button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.month-nav button:hover {
+    background: #5568d3;
+}
+
+.month-display {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    min-width: 200px;
+    text-align: center;
+}
+
+.data-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.data-controls button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.data-controls button:hover {
+    background: #218838;
+}
+
+.data-controls button.export {
+    background: #17a2b8;
+}
+
+.data-controls button.export:hover {
+    background: #138496;
+}
+
+.calendar {
+    padding: 30px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    background: #e9ecef;
+    border-radius: 6px;
+    color: #495057;
+}
+
+.day-cell {
+    min-height: 120px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.day-cell:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+.day-cell.empty {
+    background: #f8f9fa;
+    cursor: default;
+}
+
+.day-cell.empty:hover {
+    border-color: #dee2e6;
+    box-shadow: none;
+    transform: none;
+}
+
+.day-number {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.day-balance {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-top: 5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.balance-positive {
+    color: #28a745;
+    background: #d4edda;
+}
+
+.balance-negative {
+    color: #dc3545;
+    background: #f8d7da;
+}
+
+.bills-preview {
+    font-size: 0.75em;
+    margin-top: 8px;
+    color: #6c757d;
+    max-height: 60px;
+    overflow-y: auto;
+}
+
+.bill-item-preview {
+    padding: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.modal-header h2 {
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #6c757d;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #dc3545;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+    margin-right: 10px;
+}
+
+.btn:hover {
+    background: #5568d3;
+}
+
+.btn-danger {
+    background: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.bills-list {
+    margin-top: 20px;
+}
+
+.bill-item {
+    background: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid #667eea;
+}
+
+.bill-item.income {
+    border-left-color: #28a745;
+}
+
+.bill-item.expense {
+    border-left-color: #dc3545;
+}
+
+.bill-info {
+    flex-grow: 1;
+}
+
+.bill-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.bill-details {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.bill-amount {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.amount-positive {
+    color: #28a745;
+}
+
+.amount-negative {
+    color: #dc3545;
+}
+
+.delete-bill {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.delete-bill:hover {
+    background: #c82333;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file-upload-label {
+    background: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+    display: inline-block;
+}
+
+.file-upload-label:hover {
+    background: #218838;
+}
+
+.initial-balance-section {
+    background: #e7f3ff;
+    padding: 20px;
+    margin: 20px 30px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.initial-balance-section h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.initial-balance-form {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.initial-balance-form .form-group {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 5px;
+    }
+
+    .day-cell {
+        min-height: 100px;
+        padding: 5px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .month-nav {
+        justify-content: center;
+    }
+
+    .data-controls {
+        justify-content: center;
+    }
+}
+
+/* Enhanced styles for DollarBird-like experience */
+.day-cell.today {
+    border-color: #667eea;
+    border-width: 3px;
+    background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+}
+
+.today-badge {
+    font-size: 0.6em;
+    background: #667eea;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    vertical-align: middle;
+}
+
+.today-btn {
+    background: #764ba2 !important;
+}
+
+.today-btn:hover {
+    background: #5d3a80 !important;
+}
+
+.day-total {
+    font-size: 0.85em;
+    font-weight: bold;
+    margin: 4px 0;
+}
+
+.total-positive {
+    color: #28a745;
+}
+
+.total-negative {
+    color: #dc3545;
+}
+
+.income-preview {
+    color: #28a745;
+}
+
+.expense-preview {
+    color: #dc3545;
+}
+
+.more-bills {
+    color: #667eea;
+    font-style: italic;
+    font-size: 0.7em;
+}
+
+/* Day Summary in Modal */
+.day-summary {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.summary-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    background: white;
+}
+
+.summary-item span:first-child {
+    display: block;
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.summary-item span:last-child {
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.income-summary span:last-child {
+    color: #28a745;
+}
+
+.expense-summary span:last-child {
+    color: #dc3545;
+}
+
+.net-positive span:last-child {
+    color: #28a745;
+}
+
+.net-negative span:last-child {
+    color: #dc3545;
+}
+
+/* Add Transaction Form */
+.add-transaction-form {
+    background: #e7f3ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.add-transaction-form h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.form-group.flex-grow {
+    flex: 2;
+}
+
+/* Toggle Switch for Expense/Income */
+.toggle-group {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 5px;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.toggle-label input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    width: 50px;
+    height: 26px;
+    background: #28a745;
+    border-radius: 13px;
+    position: relative;
+    transition: background 0.3s;
+    margin-right: 10px;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.3s;
+}
+
+.toggle-label input:checked + .toggle-slider {
+    background: #dc3545;
+}
+
+.toggle-label input:checked + .toggle-slider::before {
+    transform: translateX(24px);
+}
+
+.toggle-text {
+    display: none;
+    font-weight: bold;
+}
+
+.toggle-label input:checked ~ .expense-text {
+    display: inline;
+    color: #dc3545;
+}
+
+.toggle-label input:not(:checked) ~ .income-text {
+    display: inline;
+    color: #28a745;
+}
+
+.btn-add {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-add:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #5d3a80 100%);
+}
+
+/* Bills List Improvements */
+.bills-list-header {
+    margin: 20px 0 15px 0;
+    color: #333;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.no-bills {
+    text-align: center;
+    color: #6c757d;
+    margin: 30px 0;
+    font-style: italic;
+}
+
+.bill-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bill-category-icon {
+    font-size: 1.5em;
+    width: 40px;
+    text-align: center;
+}
+
+.recurring-badge {
+    font-size: 0.75em;
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    color: #6c757d;
+}
+
+.bill-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.edit-bill, .delete-bill {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.edit-bill:hover {
+    background: #e7f3ff;
+}
+
+.delete-bill:hover {
+    background: #f8d7da;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    z-index: 2000;
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Clear button */
+.clear-btn {
+    background: #dc3545 !important;
+}
+
+.clear-btn:hover {
+    background: #c82333 !important;
+}
+
+/* Recurring options visibility */
+.recurring-options {
+    display: none;
+}
+
+/* Better scrollbar for bills preview */
+.bills-preview::-webkit-scrollbar {
+    width: 4px;
+}
+
+.bills-preview::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.bills-preview::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .day-summary {
+        flex-direction: column;
+    }
+
+    .bill-item {
+        flex-wrap: wrap;
+    }
+
+    .bill-category-icon {
+        display: none;
+    }
+}
