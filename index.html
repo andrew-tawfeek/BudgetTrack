@@ -70,6 +70,50 @@
             </div>
 
             <div class="calendar" id="calendar"></div>
+
+            <!-- Mobile Day View -->
+            <div class="mobile-day-view" id="mobileDayView">
+                <div class="mobile-day-header">
+                    <button class="mobile-nav-btn" onclick="mobilePreviousDay()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        Prev
+                    </button>
+                    <div class="mobile-date-display">
+                        <div class="mobile-date-main" id="mobileDateMain"></div>
+                        <div class="mobile-date-sub" id="mobileDateSub"></div>
+                    </div>
+                    <button class="mobile-nav-btn" onclick="mobileNextDay()">
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mobile-day-content" id="mobileDayContent">
+                    <div class="mobile-swipe-container" id="mobileSwipeContainer">
+                        <div class="mobile-day-balance">
+                            <div class="mobile-balance-label">Current Balance</div>
+                            <div class="mobile-balance-amount" id="mobileBalanceAmount">$0.00</div>
+                            <div class="mobile-balance-change" id="mobileBalanceChange">No change today</div>
+                        </div>
+                        <div class="mobile-transactions-section">
+                            <div class="mobile-section-header">
+                                <h3 class="mobile-section-title">Transactions</h3>
+                                <button class="mobile-add-btn" onclick="mobileOpenAddTransaction()" title="Add Transaction">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="mobileTransactionsList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-swipe-hint">← Swipe to navigate between days →</div>
+            </div>
         </div>
 
         <div class="tab-content hidden" id="graphTab">

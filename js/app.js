@@ -9,6 +9,14 @@ let focusedDay = null; // Track which day is currently focused with keyboard
 let calendarView = 'month'; // 'month' or 'week'
 let currentWeekStart = null; // For week view
 
+// Mobile view state
+let mobileCurrentDate = new Date();
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let isMobileView = false;
+
 // Standardized data format
 let data = {
     version: DATA_VERSION,
@@ -30,12 +38,22 @@ let data = {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadFromStorage();
+    checkMobileView();
     renderCalendar();
     highlightToday();
     initializeGraphDates();
     initializeTableDates();
     loadDarkMode();
     setupGraphClickHandler();
+    setupMobileSwipe();
+    
+    // Listen for resize to switch between mobile/desktop views
+    window.addEventListener('resize', () => {
+        checkMobileView();
+        if (isMobileView) {
+            renderMobileDayView();
+        }
+    });
 });
 
 function setupGraphClickHandler() {
@@ -1955,4 +1973,178 @@ function migrateData(importedData) {
     // }
     
     return migratedData;
+}
+
+// ============================================
+// Mobile View Functions
+// ============================================
+
+function checkMobileView() {
+    isMobileView = window.innerWidth <= 768;
+    if (isMobileView) {
+        mobileCurrentDate = new Date();
+        renderMobileDayView();
+    }
+}
+
+function setupMobileSwipe() {
+    const container = document.getElementById('mobileDayContent');
+    if (!container) return;
+    
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+}
+
+function handleTouchStart(e) {
+    if (!isMobileView) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}
+
+function handleTouchMove(e) {
+    if (!isMobileView) return;
+    touchEndX = e.touches[0].clientX;
+    touchEndY = e.touches[0].clientY;
+}
+
+function handleTouchEnd(e) {
+    if (!isMobileView) return;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // Check if horizontal swipe is dominant (more horizontal than vertical)
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+        if (deltaX > 0) {
+            // Swipe right - go to previous day
+            mobilePreviousDay();
+        } else {
+            // Swipe left - go to next day
+            mobileNextDay();
+        }
+    }
+}
+
+function renderMobileDayView() {
+    if (!isMobileView) return;
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    const day = mobileCurrentDate.getDate();
+    const month = mobileCurrentDate.getMonth();
+    const year = mobileCurrentDate.getFullYear();
+    const dayName = dayNames[mobileCurrentDate.getDay()];
+    
+    // Update date display
+    document.getElementById('mobileDateMain').textContent = `${dayName}, ${monthNames[month]} ${day}`;
+    document.getElementById('mobileDateSub').textContent = year;
+    
+    // Calculate balance for this day
+    const balances = calculateBalances(year, month);
+    const balance = balances[day] || 0;
+    
+    // Get bills for this day
+    const billsOnDay = getBillsForDate(mobileCurrentDate);
+    const dayTotal = billsOnDay.reduce((sum, b) => sum + b.amount, 0);
+    
+    // Update balance display
+    const balanceAmount = document.getElementById('mobileBalanceAmount');
+    balanceAmount.textContent = `$${balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    
+    const balanceChange = document.getElementById('mobileBalanceChange');
+    if (dayTotal !== 0) {
+        const sign = dayTotal >= 0 ? '+' : '';
+        balanceChange.textContent = `${sign}$${dayTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} today`;
+        balanceChange.style.color = dayTotal >= 0 ? '#a7f3d0' : '#fecaca';
+    } else {
+        balanceChange.textContent = 'No change today';
+        balanceChange.style.color = 'rgba(255, 255, 255, 0.8)';
+    }
+    
+    // Render transactions
+    const transactionsList = document.getElementById('mobileTransactionsList');
+    if (billsOnDay.length === 0) {
+        transactionsList.innerHTML = `
+            <div class="mobile-empty-state">
+                <div class="mobile-empty-icon">📭</div>
+                <p>No transactions for this day</p>
+            </div>
+        `;
+    } else {
+        transactionsList.innerHTML = billsOnDay.map(bill => {
+            const isPositive = bill.amount >= 0;
+            const categoryIcons = {
+                'salary': '💰',
+                'food': '🍔',
+                'transport': '🚗',
+                'utilities': '💡',
+                'entertainment': '🎮',
+                'shopping': '🛍️',
+                'health': '🏥',
+                'education': '📚',
+                'savings': '🏦',
+                'rent': '🏠',
+                'subscriptions': '📱',
+                'other': '📌'
+            };
+            const icon = categoryIcons[bill.category] || '📌';
+            
+            return `
+                <div class="mobile-transaction-item" onclick="mobileOpenEditTransaction('${bill.id}')">
+                    <div class="mobile-transaction-info">
+                        <div class="mobile-transaction-name">${bill.name}</div>
+                        <div class="mobile-transaction-category">
+                            <span>${icon}</span>
+                            <span>${bill.category.charAt(0).toUpperCase() + bill.category.slice(1)}</span>
+                            ${bill.type !== 'one-time' ? ` · ${bill.type}` : ''}
+                        </div>
+                    </div>
+                    <div class="mobile-transaction-amount ${isPositive ? 'positive' : 'negative'}">
+                        ${isPositive ? '+' : ''}$${Math.abs(bill.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function mobilePreviousDay() {
+    mobileCurrentDate.setDate(mobileCurrentDate.getDate() - 1);
+    renderMobileDayView();
+}
+
+function mobileNextDay() {
+    mobileCurrentDate.setDate(mobileCurrentDate.getDate() + 1);
+    renderMobileDayView();
+}
+
+function mobileOpenAddTransaction() {
+    // Open the day modal with the current mobile date
+    const day = mobileCurrentDate.getDate();
+    const month = mobileCurrentDate.getMonth();
+    const year = mobileCurrentDate.getFullYear();
+    
+    // Set the calendar to match mobile date
+    currentYear = year;
+    currentMonth = month;
+    
+    openDayModal(day);
+}
+
+function mobileOpenEditTransaction(billId) {
+    const bill = data.bills.find(b => b.id === billId);
+    if (!bill) return;
+    
+    // Open the day modal and scroll to the transaction
+    const day = mobileCurrentDate.getDate();
+    const month = mobileCurrentDate.getMonth();
+    const year = mobileCurrentDate.getFullYear();
+    
+    currentYear = year;
+    currentMonth = month;
+    
+    openDayModal(day);
 }
