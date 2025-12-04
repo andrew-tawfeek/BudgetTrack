@@ -556,6 +556,14 @@ input[type="file"] {
     box-shadow: 0 0 0 1px #bfdbfe;
 }
 
+.day-cell.focused {
+    border-color: #f59e0b;
+    border-width: 2px;
+    background: #fffbeb;
+    box-shadow: 0 0 0 2px #fbbf24;
+    outline: none;
+}
+
 .today-badge {
     font-size: 0.625rem;
     background: #2563eb;

@@ -5,6 +5,7 @@ let currentDate = new Date();
 let currentYear = currentDate.getFullYear();
 let currentMonth = currentDate.getMonth();
 let selectedDate = null;
+let focusedDay = null; // Track which day is currently focused with keyboard
 
 // Standardized data format
 let data = {
@@ -88,8 +89,10 @@ function renderCalendar() {
         const dayCell = document.createElement('div');
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = dateStr === todayStr;
+        const isFocused = focusedDay === day;
         
-        dayCell.className = `day-cell${isToday ? ' today' : ''}`;
+        dayCell.className = `day-cell${isToday ? ' today' : ''}${isFocused ? ' focused' : ''}`;
+        dayCell.setAttribute('data-day', day);
         
         const balance = balances[day];
         const billsOnDay = getBillsForDate(new Date(currentYear, currentMonth, day));
@@ -523,6 +526,7 @@ function previousMonth() {
         currentMonth = 11;
         currentYear--;
     }
+    focusedDay = null; // Clear focus when manually changing months
     renderCalendar();
 }
 
@@ -532,6 +536,7 @@ function nextMonth() {
         currentMonth = 0;
         currentYear++;
     }
+    focusedDay = null; // Clear focus when manually changing months
     renderCalendar();
 }
 
@@ -539,6 +544,7 @@ function goToToday() {
     const today = new Date();
     currentYear = today.getFullYear();
     currentMonth = today.getMonth();
+    focusedDay = today.getDate();
     renderCalendar();
 }
 
@@ -637,6 +643,7 @@ function clearAllData() {
 document.addEventListener('keydown', (e) => {
     // Check if modal is open
     const modalOpen = document.getElementById('dayModal').classList.contains('active');
+    const calendarActive = document.getElementById('calendarTab').classList.contains('hidden') === false;
     
     if (e.key === 'Escape') {
         if (modalOpen) {
@@ -651,12 +658,38 @@ document.addEventListener('keydown', (e) => {
         }
     }
     
-    if (!modalOpen) {
+    // Enter key to submit transaction when modal is open
+    if (e.key === 'Enter' && modalOpen) {
+        // Don't submit if user is in a textarea or select
+        if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+            e.preventDefault();
+            addBill();
+        }
+    }
+    
+    // Enter key to open day when on calendar
+    if (e.key === 'Enter' && !modalOpen && calendarActive && focusedDay) {
+        e.preventDefault();
+        openDayModal(focusedDay);
+    }
+    
+    // Arrow key navigation for days
+    if (!modalOpen && calendarActive) {
         if (e.key === 'ArrowLeft') {
-            previousMonth();
+            e.preventDefault();
+            navigateDay(-1);
         }
         if (e.key === 'ArrowRight') {
-            nextMonth();
+            e.preventDefault();
+            navigateDay(1);
+        }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            navigateDay(-7);
+        }
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            navigateDay(7);
         }
     }
 });
@@ -681,6 +714,41 @@ function switchTabDirectly(tabName) {
     if (tabName === 'calendar') buttons[0].classList.add('active');
     else if (tabName === 'graph') buttons[1].classList.add('active');
     else if (tabName === 'table') buttons[2].classList.add('active');
+}
+
+// Navigate between days with arrow keys
+function navigateDay(offset) {
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    // Initialize focused day if not set
+    if (focusedDay === null) {
+        const today = new Date();
+        if (today.getMonth() === currentMonth && today.getFullYear() === currentYear) {
+            focusedDay = today.getDate();
+        } else {
+            focusedDay = 1;
+        }
+    }
+    
+    let newDay = focusedDay + offset;
+    
+    // Handle month boundaries
+    if (newDay < 1) {
+        // Go to previous month
+        previousMonth();
+        const prevMonthDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+        focusedDay = prevMonthDays + newDay;
+        renderCalendar();
+    } else if (newDay > daysInMonth) {
+        // Go to next month
+        nextMonth();
+        focusedDay = newDay - daysInMonth;
+        renderCalendar();
+    } else {
+        // Stay in current month
+        focusedDay = newDay;
+        renderCalendar();
+    }
 }
 
 // Close modal when clicking outside
