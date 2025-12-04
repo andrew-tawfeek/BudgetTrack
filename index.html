@@ -83,10 +83,15 @@
                         <label for="graphEndDate">End Date:</label>
                         <input type="date" id="graphEndDate" onchange="updateGraph()">
                     </div>
-                    <button class="btn" onclick="setGraphDateRange('month')">One Month Ahead</button>
-                    <button class="btn" onclick="setGraphDateRange('quarter')">3 Months Ahead</button>
-                    <button class="btn" onclick="setGraphDateRange('year')">Future Year</button>
+                    <div class="zoom-controls">
+                        <button class="btn" onclick="zoomGraph('week')">1 Week</button>
+                        <button class="btn" onclick="zoomGraph('month')">1 Month</button>
+                        <button class="btn" onclick="zoomGraph('quarter')">3 Months</button>
+                        <button class="btn" onclick="zoomGraph('year')">1 Year</button>
+                        <button class="btn" onclick="zoomGraph('all')">All Time</button>
+                    </div>
                 </div>
+                <p class="graph-hint">Click on any point to jump to that day in the calendar</p>
             </div>
             <div class="graph-container">
                 <canvas id="balanceChart"></canvas>

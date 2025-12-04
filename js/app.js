@@ -35,7 +35,180 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeGraphDates();
     initializeTableDates();
     loadDarkMode();
+    setupGraphClickHandler();
 });
+
+function setupGraphClickHandler() {
+    const canvas = document.getElementById('balanceChart');
+    let tooltip = null;
+    
+    // Create tooltip element
+    function createTooltip() {
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.className = 'graph-tooltip';
+            document.body.appendChild(tooltip);
+        }
+        
+        // Update styles based on dark mode
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        tooltip.style.cssText = `
+            position: absolute;
+            background: ${isDarkMode ? 'rgba(30, 30, 30, 0.95)' : 'rgba(0, 0, 0, 0.85)'};
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            font-family: 'Segoe UI', sans-serif;
+            border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+        `;
+        
+        return tooltip;
+    }
+    
+    canvas.addEventListener('click', (e) => {
+        if (!canvas.graphConfig || !canvas.dataPoints) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const { padding, graphWidth, graphHeight, dataPoints } = canvas.graphConfig;
+        
+        // Check if click is within graph area
+        if (x < padding || x > canvas.width - padding) return;
+        if (y < padding || y > canvas.height - padding) return;
+        
+        // Find closest data point
+        const relativeX = x - padding;
+        const index = Math.round((relativeX / graphWidth) * (dataPoints.length - 1));
+        
+        if (index >= 0 && index < dataPoints.length) {
+            const clickedDate = dataPoints[index].date;
+            
+            // Switch to calendar view
+            switchTab('calendar');
+            
+            // Navigate to the clicked date
+            currentYear = clickedDate.getFullYear();
+            currentMonth = clickedDate.getMonth();
+            focusedDay = clickedDate.getDate();
+            
+            // Update week view if in week mode
+            if (calendarView === 'week') {
+                currentWeekStart = getWeekStart(clickedDate);
+            }
+            
+            renderCalendar();
+            
+            // Show toast notification
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            showToast(`Jumped to ${monthNames[clickedDate.getMonth()]} ${clickedDate.getDate()}, ${clickedDate.getFullYear()}`);
+        }
+    });
+    
+    // Add hover effect with tooltip
+    canvas.addEventListener('mousemove', (e) => {
+        if (!canvas.graphConfig || !canvas.dataPoints) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const { padding, graphWidth, graphHeight, minBalance, balanceRange, dataPoints } = canvas.graphConfig;
+        
+        // Check if mouse is within graph area
+        if (x < padding || x > canvas.width - padding || y < padding || y > canvas.height - padding) {
+            canvas.style.cursor = 'default';
+            const tt = createTooltip();
+            tt.style.display = 'none';
+            redrawGraphWithoutHighlight();
+            return;
+        }
+        
+        canvas.style.cursor = 'pointer';
+        
+        // Find closest data point
+        const relativeX = x - padding;
+        const index = Math.round((relativeX / graphWidth) * (dataPoints.length - 1));
+        
+        if (index >= 0 && index < dataPoints.length) {
+            const point = dataPoints[index];
+            const pointX = padding + (graphWidth / (dataPoints.length - 1 || 1)) * index;
+            const pointY = canvas.height - padding - ((point.balance - minBalance) / balanceRange) * graphHeight;
+            
+            // Redraw graph with highlight
+            drawGraphWithHighlight(canvas.dataPoints, index);
+            
+            // Show tooltip
+            const tt = createTooltip();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const date = point.date;
+            const dateStr = `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+            const balanceStr = `$${point.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            tt.innerHTML = `<strong>${dateStr}</strong><br>Balance: ${balanceStr}`;
+            tt.style.display = 'block';
+            tt.style.left = (e.clientX + 15) + 'px';
+            tt.style.top = (e.clientY - 15) + 'px';
+        }
+    });
+    
+    // Hide tooltip when mouse leaves canvas
+    canvas.addEventListener('mouseleave', () => {
+        const tt = createTooltip();
+        tt.style.display = 'none';
+        redrawGraphWithoutHighlight();
+    });
+}
+
+function redrawGraphWithoutHighlight() {
+    const canvas = document.getElementById('balanceChart');
+    if (canvas.dataPoints) {
+        drawGraph(canvas.dataPoints);
+    }
+}
+
+function drawGraphWithHighlight(dataPoints, highlightIndex) {
+    const canvas = document.getElementById('balanceChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Redraw base graph
+    drawGraph(dataPoints);
+    
+    if (highlightIndex < 0 || highlightIndex >= dataPoints.length) return;
+    
+    const { padding, graphWidth, graphHeight, minBalance, balanceRange } = canvas.graphConfig;
+    
+    // Highlight the specific point
+    const point = dataPoints[highlightIndex];
+    const x = padding + (graphWidth / (dataPoints.length - 1 || 1)) * highlightIndex;
+    const y = canvas.height - padding - ((point.balance - minBalance) / balanceRange) * graphHeight;
+    
+    // Draw highlight circle
+    ctx.fillStyle = '#ff6b6b';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    // Draw vertical line
+    ctx.strokeStyle = 'rgba(255, 107, 107, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(x, padding);
+    ctx.lineTo(x, canvas.height - padding);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
 
 // Dark mode functions
 function toggleDarkMode() {
@@ -1433,7 +1606,10 @@ function drawGraph(dataPoints) {
     
     // Set canvas size
     canvas.width = canvas.offsetWidth;
-    canvas.height = 400;
+    canvas.height = 500;
+    
+    // Store dataPoints for click handling
+    canvas.dataPoints = dataPoints;
     
     if (dataPoints.length === 0) {
         ctx.fillStyle = '#6c757d';
@@ -1534,6 +1710,52 @@ function drawGraph(dataPoints) {
             ctx.fillText(dateStr, x, canvas.height - padding + 20);
         }
     });
+    
+    // Store graph dimensions for click handling
+    canvas.graphConfig = {
+        padding,
+        graphWidth,
+        graphHeight,
+        minBalance,
+        maxBalance,
+        balanceRange,
+        dataPoints
+    };
+}
+
+function zoomGraph(period) {
+    const endDate = new Date();
+    const startDate = new Date();
+    
+    switch(period) {
+        case 'week':
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+        case 'month':
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+        case 'quarter':
+            startDate.setMonth(startDate.getMonth() - 3);
+            break;
+        case 'year':
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+        case 'all':
+            // Find earliest transaction
+            if (data.bills.length > 0) {
+                const dates = data.bills.map(b => parseDateString(b.date));
+                startDate.setTime(Math.min(...dates));
+            } else {
+                startDate.setMonth(startDate.getMonth() - 3);
+            }
+            break;
+    }
+    
+    // Set date inputs
+    document.getElementById('graphStartDate').value = formatDateString(startDate);
+    document.getElementById('graphEndDate').value = formatDateString(endDate);
+    
+    updateGraph();
 }
 
 // ==================== TABLE VIEW ====================
