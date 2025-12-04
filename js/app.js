@@ -710,7 +710,13 @@ function importCSV(event) {
                     if (dateParts.length === 3) {
                         const month = parseInt(dateParts[0]) - 1;
                         const day = parseInt(dateParts[1]);
-                        const year = parseInt(dateParts[2]);
+                        let year = parseInt(dateParts[2]);
+                        
+                        // Fix 2-digit year parsing (assume 2000s)
+                        if (year < 100) {
+                            year += 2000;
+                        }
+                        
                         transactionDate = new Date(year, month, day);
                     } else {
                         transactionDate = new Date(dateStr);
@@ -723,8 +729,11 @@ function importCSV(event) {
                     continue;
                 }
                 
-                const amount = parseFloat(amountStr);
+                let amount = parseFloat(amountStr);
                 if (isNaN(amount) || amount === 0) continue;
+                
+                // Make all amounts negative (expenses)
+                amount = Math.abs(amount) * -1;
                 
                 // Store transaction for preview
                 pendingCsvTransactions.push({
@@ -732,6 +741,7 @@ function importCSV(event) {
                     name: description,
                     amount: amount,
                     date: formatDateString(transactionDate),
+                    recurrence: 'one-time',
                     selected: true
                 });
             }
@@ -758,7 +768,7 @@ function showCsvPreview() {
         item.className = 'csv-transaction-item';
         item.innerHTML = `
             <input type="checkbox" 
-                   class="csv-transaction-checkbox" 
+                   class="csv-transaction-checkbox csv-item-checkbox" 
                    id="csv-check-${index}" 
                    ${transaction.selected ? 'checked' : ''} 
                    onchange="toggleCsvTransaction(${index})">
@@ -779,6 +789,16 @@ function showCsvPreview() {
                            onchange="updateCsvTransaction(${index}, 'amount', parseFloat(this.value))">
                 </div>
                 <div class="csv-field-group">
+                    <label class="csv-field-label">Recurrence</label>
+                    <select class="csv-field-input" 
+                            onchange="updateCsvTransaction(${index}, 'recurrence', this.value)">
+                        <option value="one-time" ${transaction.recurrence === 'one-time' ? 'selected' : ''}>One-time</option>
+                        <option value="weekly" ${transaction.recurrence === 'weekly' ? 'selected' : ''}>Weekly</option>
+                        <option value="biweekly" ${transaction.recurrence === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
+                        <option value="monthly" ${transaction.recurrence === 'monthly' ? 'selected' : ''}>Monthly</option>
+                    </select>
+                </div>
+                <div class="csv-field-group">
                     <label class="csv-field-label">Date</label>
                     <input type="date" 
                            class="csv-field-input" 
@@ -795,6 +815,22 @@ function showCsvPreview() {
 
 function toggleCsvTransaction(index) {
     pendingCsvTransactions[index].selected = !pendingCsvTransactions[index].selected;
+    updateSelectAllCheckbox();
+}
+
+function toggleAllCsvTransactions(checked) {
+    pendingCsvTransactions.forEach(t => t.selected = checked);
+    document.querySelectorAll('.csv-item-checkbox').forEach(checkbox => {
+        checkbox.checked = checked;
+    });
+}
+
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('csvSelectAll');
+    if (selectAllCheckbox) {
+        const allSelected = pendingCsvTransactions.every(t => t.selected);
+        selectAllCheckbox.checked = allSelected;
+    }
 }
 
 function updateCsvTransaction(index, field, value) {
@@ -826,7 +862,7 @@ function confirmCsvImport() {
             id: transaction.id,
             name: transaction.name,
             amount: transaction.amount,
-            type: 'one-time',
+            type: transaction.recurrence,
             category: 'other',
             date: transaction.date,
             endDate: null

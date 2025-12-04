@@ -1099,7 +1099,8 @@ input[type="file"] {
 
 /* CSV Preview Modal */
 .csv-preview-content {
-    max-width: 800px;
+    max-width: 95vw;
+    width: 95vw;
     max-height: 85vh;
 }
 
@@ -1109,6 +1110,28 @@ input[type="file"] {
     border-radius: 8px;
     margin-bottom: 16px;
     border-left: 3px solid #2563eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.csv-select-all-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.csv-select-all-control input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.csv-select-all-control label {
+    font-weight: 600;
+    color: #2563eb;
+    cursor: pointer;
+    font-size: 0.875rem;
 }
 
 .csv-preview-info p {
@@ -1145,7 +1168,7 @@ input[type="file"] {
 .csv-transaction-fields {
     flex: 1;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1.2fr 1fr;
     gap: 12px;
     align-items: start;
 }

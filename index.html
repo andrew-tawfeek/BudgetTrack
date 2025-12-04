@@ -220,6 +220,10 @@
             </div>
             <div class="csv-preview-info">
                 <p>Review and edit transactions below. Uncheck any you don't want to import.</p>
+                <div class="csv-select-all-control">
+                    <input type="checkbox" id="csvSelectAll" checked onchange="toggleAllCsvTransactions(this.checked)">
+                    <label for="csvSelectAll">Select All</label>
+                </div>
             </div>
             <div class="csv-preview-list" id="csvPreviewList"></div>
             <div class="csv-preview-footer">
