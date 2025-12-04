@@ -120,17 +120,17 @@ function renderCalendar() {
         dayCell.innerHTML = `
             <div class="day-number">${day}${isToday ? ' <span class="today-badge">Today</span>' : ''}</div>
             <div class="day-balance ${balance >= 0 ? 'balance-positive' : 'balance-negative'}">
-                Balance: $${balance.toFixed(2)}
+                Balance: $${balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </div>
             ${billsOnDay.length > 0 ? `
                 <div class="day-total ${dayTotal >= 0 ? 'total-positive' : 'total-negative'}">
-                    ${dayTotal >= 0 ? '+' : ''}$${dayTotal.toFixed(2)}
+                    ${dayTotal >= 0 ? '+' : ''}$${Math.abs(dayTotal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </div>
             ` : ''}
             <div class="bills-preview">
                 ${billsOnDay.slice(0, 3).map(bill => 
                     `<div class="bill-item-preview ${bill.amount >= 0 ? 'income-preview' : 'expense-preview'}">
-                        ${bill.amount >= 0 ? '↑' : '↓'} ${bill.name}: ${bill.amount >= 0 ? '+' : ''}$${Math.abs(bill.amount).toFixed(2)}
+                        ${bill.amount >= 0 ? '↑' : '↓'} ${bill.name}: ${bill.amount >= 0 ? '+' : ''}$${Math.abs(bill.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                     </div>`
                 ).join('')}
                 ${billsOnDay.length > 3 ? `<div class="more-bills">+${billsOnDay.length - 3} more...</div>` : ''}
@@ -303,7 +303,7 @@ function toggleBalanceEdit() {
 function updateBalanceDisplay() {
     const balances = calculateBalances(selectedDate.getFullYear(), selectedDate.getMonth());
     const dayBalance = balances[selectedDate.getDate()];
-    document.getElementById('dayBalanceAmount').textContent = `$${dayBalance.toFixed(2)}`;
+    document.getElementById('dayBalanceAmount').textContent = `$${dayBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
 
