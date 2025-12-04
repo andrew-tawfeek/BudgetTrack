@@ -1104,25 +1104,14 @@ function updateTable() {
         }
     }
     
-    // Generate table rows
+    // Generate table rows (only for dates with transactions)
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
         const bills = getBillsForDate(currentDate);
         const dateStr = formatDateString(currentDate);
-        const dayStartBalance = runningBalance;
         
-        if (bills.length === 0) {
-            // Show day with no transactions
-            const row = tableBody.insertRow();
-            row.innerHTML = `
-                <td>${dateStr}</td>
-                <td colspan="3" style="text-align: center; color: #6c757d; font-style: italic;">No transactions</td>
-                <td>-</td>
-                <td>-</td>
-                <td class="balance">$${runningBalance.toFixed(2)}</td>
-                <td>$0.00</td>
-            `;
-        } else {
+        // Only show rows if there are transactions
+        if (bills.length > 0) {
             bills.forEach(bill => {
                 const row = tableBody.insertRow();
                 const income = bill.amount > 0 ? bill.amount : 0;
