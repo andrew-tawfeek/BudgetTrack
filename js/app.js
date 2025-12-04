@@ -733,9 +733,9 @@ function switchTab(tabName) {
 // ==================== GRAPH VIEW ====================
 
 function initializeGraphDates() {
-    const endDate = new Date();
     const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 1);
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
     
     // Load saved dates from settings
     if (data.settings.graphDateRange.start && data.settings.graphDateRange.end) {
@@ -748,18 +748,18 @@ function initializeGraphDates() {
 }
 
 function setGraphDateRange(range) {
-    const endDate = new Date();
     const startDate = new Date();
+    const endDate = new Date();
     
     switch(range) {
         case 'month':
-            startDate.setMonth(startDate.getMonth() - 1);
+            endDate.setMonth(endDate.getMonth() + 1);
             break;
         case 'quarter':
-            startDate.setMonth(startDate.getMonth() - 3);
+            endDate.setMonth(endDate.getMonth() + 3);
             break;
         case 'year':
-            startDate.setFullYear(startDate.getFullYear() - 1);
+            endDate.setFullYear(endDate.getFullYear() + 1);
             break;
     }
     
@@ -951,9 +951,9 @@ function drawGraph(dataPoints) {
 // ==================== TABLE VIEW ====================
 
 function initializeTableDates() {
-    const endDate = new Date();
     const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 1);
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
     
     // Load saved dates from settings
     if (data.settings.tableDateRange.start && data.settings.tableDateRange.end) {
@@ -966,18 +966,18 @@ function initializeTableDates() {
 }
 
 function setTableDateRange(range) {
-    const endDate = new Date();
     const startDate = new Date();
+    const endDate = new Date();
     
     switch(range) {
         case 'month':
-            startDate.setMonth(startDate.getMonth() - 1);
+            endDate.setMonth(endDate.getMonth() + 1);
             break;
         case 'quarter':
-            startDate.setMonth(startDate.getMonth() - 3);
+            endDate.setMonth(endDate.getMonth() + 3);
             break;
         case 'year':
-            startDate.setFullYear(startDate.getFullYear() - 1);
+            endDate.setFullYear(endDate.getFullYear() + 1);
             break;
     }
     

@@ -61,9 +61,9 @@
                         <label for="graphEndDate">End Date:</label>
                         <input type="date" id="graphEndDate" onchange="updateGraph()">
                     </div>
-                    <button class="btn" onclick="setGraphDateRange('month')">Last Month</button>
-                    <button class="btn" onclick="setGraphDateRange('quarter')">Last 3 Months</button>
-                    <button class="btn" onclick="setGraphDateRange('year')">Last Year</button>
+                    <button class="btn" onclick="setGraphDateRange('month')">One Month Ahead</button>
+                    <button class="btn" onclick="setGraphDateRange('quarter')">3 Months Ahead</button>
+                    <button class="btn" onclick="setGraphDateRange('year')">Future Year</button>
                 </div>
             </div>
             <div class="graph-container">
@@ -101,9 +101,9 @@
                         <label for="tableEndDate">End Date:</label>
                         <input type="date" id="tableEndDate" onchange="updateTable()">
                     </div>
-                    <button class="btn" onclick="setTableDateRange('month')">Last Month</button>
-                    <button class="btn" onclick="setTableDateRange('quarter')">Last 3 Months</button>
-                    <button class="btn" onclick="setTableDateRange('year')">Last Year</button>
+                    <button class="btn" onclick="setTableDateRange('month')">One Month Ahead</button>
+                    <button class="btn" onclick="setTableDateRange('quarter')">3 Months Ahead</button>
+                    <button class="btn" onclick="setTableDateRange('year')">Future Year</button>
                     <button class="btn btn-success" onclick="exportToExcel()">Export to Excel</button>
                 </div>
             </div>
