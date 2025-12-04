@@ -152,11 +152,34 @@ function calculateStartingBalanceForMonth(year, month) {
     // Start from the initial balance
     let balance = data.initialBalance;
     
-    // Determine the start date for calculations
-    const initialDate = data.initialBalanceDate ? parseDateString(data.initialBalanceDate) : new Date(year, month, 1);
     const targetMonthStart = new Date(year, month, 1);
     
-    // If we're viewing a month before the initial balance date, just return initial balance
+    // If no initial balance date is set, calculate from the earliest transaction or use initial balance
+    if (!data.initialBalanceDate) {
+        // Find the earliest transaction date
+        if (data.bills.length > 0) {
+            const earliestBill = data.bills.reduce((earliest, bill) => {
+                const billDate = parseDateString(bill.date);
+                return !earliest || billDate < earliest ? billDate : earliest;
+            }, null);
+            
+            if (earliestBill && earliestBill < targetMonthStart) {
+                // Calculate from earliest transaction to target month
+                let currentDate = new Date(earliestBill);
+                while (currentDate < targetMonthStart) {
+                    const bills = getBillsForDate(currentDate);
+                    const dayTotal = bills.reduce((sum, bill) => sum + bill.amount, 0);
+                    balance += dayTotal;
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+            }
+        }
+        return balance;
+    }
+    
+    const initialDate = parseDateString(data.initialBalanceDate);
+    
+    // If we're viewing a month before or at the initial balance date, just return initial balance
     if (targetMonthStart <= initialDate) {
         return balance;
     }
