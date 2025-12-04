@@ -312,7 +312,6 @@ function closeModal() {
     document.getElementById('billType').value = 'one-time';
     document.getElementById('billCategory').value = 'other';
     document.getElementById('billEndDate').value = '';
-    document.getElementById('isIncome').checked = false;
     document.getElementById('balanceAdjustment').value = '';
 }
 
@@ -322,15 +321,13 @@ function addBill() {
     const type = document.getElementById('billType').value;
     const category = document.getElementById('billCategory').value;
     const endDate = document.getElementById('billEndDate').value || null;
-    const isIncome = document.getElementById('isIncome').checked;
 
     if (!name || isNaN(amount) || amount === 0) {
         alert('Please enter a valid bill name and non-zero amount');
         return;
     }
 
-    // Apply positive sign if it's income, negative if expense
-    const finalAmount = isIncome ? Math.abs(amount) : -Math.abs(amount);
+    const finalAmount = amount;
 
     const bill = {
         id: Date.now(),
@@ -354,7 +351,6 @@ function addBill() {
     document.getElementById('billType').value = 'one-time';
     document.getElementById('billCategory').value = 'other';
     document.getElementById('billEndDate').value = '';
-    document.getElementById('isIncome').checked = false;
     
     // Show confirmation
     showToast(`${name} added successfully!`);
@@ -484,11 +480,10 @@ function editBill(billId) {
     if (!bill) return;
 
     document.getElementById('billName').value = bill.name;
-    document.getElementById('billAmount').value = Math.abs(bill.amount);
+    document.getElementById('billAmount').value = bill.amount;
     document.getElementById('billType').value = bill.type;
     document.getElementById('billCategory').value = bill.category || 'other';
     document.getElementById('billEndDate').value = bill.endDate || '';
-    document.getElementById('isIncome').checked = bill.amount > 0;
 
     // Delete the old bill and let the user add the updated one
     data.bills = data.bills.filter(b => b.id !== billId);
