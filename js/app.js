@@ -638,6 +638,208 @@ function importData(event) {
     reader.readAsText(file);
 }
 
+// Temporary storage for CSV transactions pending review
+let pendingCsvTransactions = [];
+
+function importCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const csv = e.target.result;
+            const lines = csv.split('\n');
+            
+            if (lines.length < 2) {
+                alert('CSV file appears to be empty');
+                return;
+            }
+            
+            // Parse header to find column indices
+            const header = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const descIndex = header.findIndex(h => h.toLowerCase().includes('description'));
+            const dateIndex = header.findIndex(h => h.toLowerCase().includes('date'));
+            const amountIndex = header.findIndex(h => h.toLowerCase().includes('amount'));
+            
+            if (descIndex === -1 || dateIndex === -1 || amountIndex === -1) {
+                alert('CSV must contain columns for Description, Date, and Amount');
+                return;
+            }
+            
+            pendingCsvTransactions = [];
+            
+            // Process each transaction line
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Parse CSV line (handling quoted fields)
+                const fields = [];
+                let currentField = '';
+                let inQuotes = false;
+                
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        fields.push(currentField.trim());
+                        currentField = '';
+                    } else {
+                        currentField += char;
+                    }
+                }
+                fields.push(currentField.trim());
+                
+                if (fields.length <= Math.max(descIndex, dateIndex, amountIndex)) {
+                    continue; // Skip incomplete rows
+                }
+                
+                const description = fields[descIndex].replace(/"/g, '');
+                const dateStr = fields[dateIndex].replace(/"/g, '');
+                const amountStr = fields[amountIndex].replace(/"/g, '').replace(/[$,]/g, '');
+                
+                if (!description || !dateStr || !amountStr) continue;
+                
+                // Parse date (handle various formats)
+                let transactionDate;
+                try {
+                    // Try parsing as MM/DD/YYYY or other common formats
+                    const dateParts = dateStr.split('/');
+                    if (dateParts.length === 3) {
+                        const month = parseInt(dateParts[0]) - 1;
+                        const day = parseInt(dateParts[1]);
+                        const year = parseInt(dateParts[2]);
+                        transactionDate = new Date(year, month, day);
+                    } else {
+                        transactionDate = new Date(dateStr);
+                    }
+                    
+                    if (isNaN(transactionDate.getTime())) {
+                        continue; // Skip invalid dates
+                    }
+                } catch (err) {
+                    continue;
+                }
+                
+                const amount = parseFloat(amountStr);
+                if (isNaN(amount) || amount === 0) continue;
+                
+                // Store transaction for preview
+                pendingCsvTransactions.push({
+                    id: Date.now() + pendingCsvTransactions.length,
+                    name: description,
+                    amount: amount,
+                    date: formatDateString(transactionDate),
+                    selected: true
+                });
+            }
+            
+            if (pendingCsvTransactions.length > 0) {
+                showCsvPreview();
+            } else {
+                alert('No valid transactions found in CSV');
+            }
+        } catch (error) {
+            alert('Error importing CSV: ' + error.message);
+        }
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+}
+
+function showCsvPreview() {
+    const previewList = document.getElementById('csvPreviewList');
+    previewList.innerHTML = '';
+    
+    pendingCsvTransactions.forEach((transaction, index) => {
+        const item = document.createElement('div');
+        item.className = 'csv-transaction-item';
+        item.innerHTML = `
+            <input type="checkbox" 
+                   class="csv-transaction-checkbox" 
+                   id="csv-check-${index}" 
+                   ${transaction.selected ? 'checked' : ''} 
+                   onchange="toggleCsvTransaction(${index})">
+            <div class="csv-transaction-fields">
+                <div class="csv-field-group">
+                    <label class="csv-field-label">Description</label>
+                    <input type="text" 
+                           class="csv-field-input" 
+                           value="${transaction.name}" 
+                           onchange="updateCsvTransaction(${index}, 'name', this.value)">
+                </div>
+                <div class="csv-field-group">
+                    <label class="csv-field-label">Amount</label>
+                    <input type="number" 
+                           step="0.01" 
+                           class="csv-field-input ${transaction.amount >= 0 ? 'amount-positive' : 'amount-negative'}" 
+                           value="${transaction.amount}" 
+                           onchange="updateCsvTransaction(${index}, 'amount', parseFloat(this.value))">
+                </div>
+                <div class="csv-field-group">
+                    <label class="csv-field-label">Date</label>
+                    <input type="date" 
+                           class="csv-field-input" 
+                           value="${transaction.date}" 
+                           onchange="updateCsvTransaction(${index}, 'date', this.value)">
+                </div>
+            </div>
+        `;
+        previewList.appendChild(item);
+    });
+    
+    document.getElementById('csvPreviewModal').classList.add('active');
+}
+
+function toggleCsvTransaction(index) {
+    pendingCsvTransactions[index].selected = !pendingCsvTransactions[index].selected;
+}
+
+function updateCsvTransaction(index, field, value) {
+    pendingCsvTransactions[index][field] = value;
+    
+    // Update amount color class if amount changed
+    if (field === 'amount') {
+        const input = event.target;
+        input.className = `csv-field-input ${value >= 0 ? 'amount-positive' : 'amount-negative'}`;
+    }
+}
+
+function closeCsvPreview() {
+    document.getElementById('csvPreviewModal').classList.remove('active');
+    pendingCsvTransactions = [];
+}
+
+function confirmCsvImport() {
+    const selectedTransactions = pendingCsvTransactions.filter(t => t.selected);
+    
+    if (selectedTransactions.length === 0) {
+        alert('No transactions selected for import');
+        return;
+    }
+    
+    // Import selected transactions
+    selectedTransactions.forEach(transaction => {
+        const bill = {
+            id: transaction.id,
+            name: transaction.name,
+            amount: transaction.amount,
+            type: 'one-time',
+            category: 'other',
+            date: transaction.date,
+            endDate: null
+        };
+        data.bills.push(bill);
+    });
+    
+    saveToStorage();
+    renderCalendar();
+    closeCsvPreview();
+    showToast(`Successfully imported ${selectedTransactions.length} transactions`);
+}
+
 function clearAllData() {
     if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
         data = {
@@ -668,12 +870,16 @@ document.addEventListener('keydown', (e) => {
     const modalOpen = document.getElementById('dayModal').classList.contains('active');
     const calendarActive = document.getElementById('calendarTab').classList.contains('hidden') === false;
     
+    const csvPreviewOpen = document.getElementById('csvPreviewModal').classList.contains('active');
+    
     if (e.key === 'Escape') {
-        if (modalOpen) {
+        if (csvPreviewOpen) {
+            closeCsvPreview();
+        } else if (modalOpen) {
             closeModal();
         }
         // Return to calendar view if on other tabs
-        if (!modalOpen) {
+        if (!modalOpen && !csvPreviewOpen) {
             const calendarTab = document.querySelector('.tab-btn:first-child');
             if (!calendarTab.classList.contains('active')) {
                 switchTabDirectly('calendar');

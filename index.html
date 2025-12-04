@@ -42,6 +42,8 @@
                     <button class="export" onclick="exportData()">Export Data</button>
                     <label for="importFile" class="file-upload-label">Import Data</label>
                     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+                    <label for="importCSV" class="file-upload-label">Import CSV</label>
+                    <input type="file" id="importCSV" accept=".csv" onchange="importCSV(event)">
                     <button class="clear-btn" onclick="clearAllData()">Clear All</button>
                 </div>
             </div>
@@ -207,6 +209,23 @@
             </div>
 
             <div class="bills-list" id="billsList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="csvPreviewModal">
+        <div class="modal-content csv-preview-content">
+            <div class="modal-header">
+                <h2>Review CSV Transactions</h2>
+                <button class="close-btn" onclick="closeCsvPreview()">×</button>
+            </div>
+            <div class="csv-preview-info">
+                <p>Review and edit transactions below. Uncheck any you don't want to import.</p>
+            </div>
+            <div class="csv-preview-list" id="csvPreviewList"></div>
+            <div class="csv-preview-footer">
+                <button class="btn btn-danger" onclick="closeCsvPreview()">Cancel</button>
+                <button class="btn" onclick="confirmCsvImport()">Import Selected Transactions</button>
+            </div>
         </div>
     </div>
 
