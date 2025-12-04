@@ -434,6 +434,339 @@
                 justify-content: center;
             }
         }
+
+        /* Enhanced styles for DollarBird-like experience */
+        .day-cell.today {
+            border-color: #667eea;
+            border-width: 3px;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+        }
+
+        .today-badge {
+            font-size: 0.6em;
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            vertical-align: middle;
+        }
+
+        .today-btn {
+            background: #764ba2 !important;
+        }
+
+        .today-btn:hover {
+            background: #5d3a80 !important;
+        }
+
+        .day-total {
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+
+        .total-positive {
+            color: #28a745;
+        }
+
+        .total-negative {
+            color: #dc3545;
+        }
+
+        .income-preview {
+            color: #28a745;
+        }
+
+        .expense-preview {
+            color: #dc3545;
+        }
+
+        .more-bills {
+            color: #667eea;
+            font-style: italic;
+            font-size: 0.7em;
+        }
+
+        /* Day Summary in Modal */
+        .day-summary {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .summary-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .summary-item span:first-child {
+            display: block;
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .summary-item span:last-child {
+            display: block;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .income-summary span:last-child {
+            color: #28a745;
+        }
+
+        .expense-summary span:last-child {
+            color: #dc3545;
+        }
+
+        .net-positive span:last-child {
+            color: #28a745;
+        }
+
+        .net-negative span:last-child {
+            color: #dc3545;
+        }
+
+        /* Add Transaction Form */
+        .add-transaction-form {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .add-transaction-form h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .form-group.flex-grow {
+            flex: 2;
+        }
+
+        /* Toggle Switch for Expense/Income */
+        .toggle-group {
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 5px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .toggle-label input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            width: 50px;
+            height: 26px;
+            background: #28a745;
+            border-radius: 13px;
+            position: relative;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-label input:checked + .toggle-slider {
+            background: #dc3545;
+        }
+
+        .toggle-label input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+
+        .toggle-text {
+            display: none;
+            font-weight: bold;
+        }
+
+        .toggle-label input:checked ~ .expense-text {
+            display: inline;
+            color: #dc3545;
+        }
+
+        .toggle-label input:not(:checked) ~ .income-text {
+            display: inline;
+            color: #28a745;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #5d3a80 100%);
+        }
+
+        /* Bills List Improvements */
+        .bills-list-header {
+            margin: 20px 0 15px 0;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .no-bills {
+            text-align: center;
+            color: #6c757d;
+            margin: 30px 0;
+            font-style: italic;
+        }
+
+        .bill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bill-category-icon {
+            font-size: 1.5em;
+            width: 40px;
+            text-align: center;
+        }
+
+        .recurring-badge {
+            font-size: 0.75em;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            color: #6c757d;
+        }
+
+        .bill-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edit-bill, .delete-bill {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .edit-bill:hover {
+            background: #e7f3ff;
+        }
+
+        .delete-bill:hover {
+            background: #f8d7da;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Clear button */
+        .clear-btn {
+            background: #dc3545 !important;
+        }
+
+        .clear-btn:hover {
+            background: #c82333 !important;
+        }
+
+        /* Recurring options visibility */
+        .recurring-options {
+            display: none;
+        }
+
+        /* Better scrollbar for bills preview */
+        .bills-preview::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .bills-preview::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+        }
+
+        .bills-preview::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .day-summary {
+                flex-direction: column;
+            }
+
+            .bill-item {
+                flex-wrap: wrap;
+            }
+
+            .bill-category-icon {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -459,11 +792,13 @@
                 <button onclick="previousMonth()">← Previous</button>
                 <div class="month-display" id="monthDisplay"></div>
                 <button onclick="nextMonth()">Next →</button>
+                <button class="today-btn" onclick="goToToday()">Today</button>
             </div>
             <div class="data-controls">
-                <button class="export" onclick="exportData()">📥 Export JSON</button>
-                <label for="importFile" class="file-upload-label">📤 Import JSON</label>
+                <button class="export" onclick="exportData()">📥 Export</button>
+                <label for="importFile" class="file-upload-label">📤 Import</label>
                 <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+                <button class="clear-btn" onclick="clearAllData()">🗑️ Clear All</button>
             </div>
         </div>
 
@@ -477,28 +812,73 @@
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
 
-            <div class="form-group">
-                <label for="billName">Bill Name:</label>
-                <input type="text" id="billName" placeholder="e.g., Rent, Salary, Groceries">
-            </div>
+            <div class="day-summary" id="daySummary"></div>
 
-            <div class="form-group">
-                <label for="billAmount">Amount:</label>
-                <input type="number" id="billAmount" step="0.01" placeholder="Use positive for income, negative for expenses">
-            </div>
+            <div class="add-transaction-form">
+                <h3>Add Transaction</h3>
+                
+                <div class="form-row">
+                    <div class="form-group flex-grow">
+                        <label for="billName">Description:</label>
+                        <input type="text" id="billName" placeholder="e.g., Rent, Salary, Groceries">
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label for="billType">Type:</label>
-                <select id="billType">
-                    <option value="one-time">One-time</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="billAmount">Amount ($):</label>
+                        <input type="number" id="billAmount" step="0.01" min="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="isExpense" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text expense-text">Expense</span>
+                            <span class="toggle-text income-text">Income</span>
+                        </label>
+                    </div>
+                </div>
 
-            <button class="btn" onclick="addBill()">Add Bill</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="billCategory">Category:</label>
+                        <select id="billCategory">
+                            <option value="other">📝 Other</option>
+                            <option value="salary">💰 Salary/Income</option>
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="transport">🚗 Transportation</option>
+                            <option value="utilities">💡 Utilities</option>
+                            <option value="entertainment">🎮 Entertainment</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="health">🏥 Health</option>
+                            <option value="education">📚 Education</option>
+                            <option value="savings">🏦 Savings</option>
+                            <option value="rent">🏠 Rent/Mortgage</option>
+                            <option value="subscriptions">📱 Subscriptions</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="billType">Frequency:</label>
+                        <select id="billType">
+                            <option value="one-time">One-time</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Bi-weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row recurring-options" id="recurringOptions">
+                    <div class="form-group">
+                        <label for="billEndDate">End Date (optional):</label>
+                        <input type="date" id="billEndDate">
+                    </div>
+                </div>
+
+                <button class="btn btn-add" onclick="addBill()">➕ Add Transaction</button>
+            </div>
 
             <div class="bills-list" id="billsList"></div>
         </div>
@@ -513,6 +893,7 @@
         
         let data = {
             initialBalance: 0,
+            initialBalanceDate: null, // Date when initial balance was set
             bills: []
         };
 
@@ -521,6 +902,7 @@
             loadFromStorage();
             renderCalendar();
             updateInitialBalanceInput();
+            highlightToday();
         });
 
         function updateInitialBalanceInput() {
@@ -530,8 +912,21 @@
         function setInitialBalance() {
             const value = parseFloat(document.getElementById('initialBalance').value) || 0;
             data.initialBalance = value;
+            // Set the initial balance date to the first of the current month if not set
+            if (!data.initialBalanceDate) {
+                data.initialBalanceDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+            }
             saveToStorage();
             renderCalendar();
+        }
+
+        function formatDateString(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function parseDateString(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
         }
 
         function renderCalendar() {
@@ -562,7 +957,7 @@
 
             const calendarDays = document.getElementById('calendarDays');
             
-            // Calculate balances for all days
+            // Calculate balances for all days including carry-over from previous months
             const balances = calculateBalances(currentYear, currentMonth);
 
             // Empty cells before first day
@@ -572,24 +967,42 @@
                 calendarDays.appendChild(emptyCell);
             }
 
+            const today = new Date();
+            const todayStr = formatDateString(today);
+
             // Days of the month
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayCell = document.createElement('div');
-                dayCell.className = 'day-cell';
-                
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const balance = balances[day] || data.initialBalance;
+                const isToday = dateStr === todayStr;
+                
+                dayCell.className = `day-cell${isToday ? ' today' : ''}`;
+                
+                const balance = balances[day];
                 const billsOnDay = getBillsForDate(new Date(currentYear, currentMonth, day));
+                
+                // Separate income and expenses for better visualization
+                const income = billsOnDay.filter(b => b.amount > 0);
+                const expenses = billsOnDay.filter(b => b.amount < 0);
+                const dayTotal = billsOnDay.reduce((sum, b) => sum + b.amount, 0);
 
                 dayCell.innerHTML = `
-                    <div class="day-number">${day}</div>
+                    <div class="day-number">${day}${isToday ? ' <span class="today-badge">Today</span>' : ''}</div>
+                    ${billsOnDay.length > 0 ? `
+                        <div class="day-total ${dayTotal >= 0 ? 'total-positive' : 'total-negative'}">
+                            ${dayTotal >= 0 ? '+' : ''}$${dayTotal.toFixed(2)}
+                        </div>
+                    ` : ''}
                     <div class="day-balance ${balance >= 0 ? 'balance-positive' : 'balance-negative'}">
-                        $${balance.toFixed(2)}
+                        Balance: $${balance.toFixed(2)}
                     </div>
                     <div class="bills-preview">
-                        ${billsOnDay.map(bill => 
-                            `<div class="bill-item-preview">${bill.name}: ${bill.amount >= 0 ? '+' : ''}$${bill.amount.toFixed(2)}</div>`
+                        ${billsOnDay.slice(0, 3).map(bill => 
+                            `<div class="bill-item-preview ${bill.amount >= 0 ? 'income-preview' : 'expense-preview'}">
+                                ${bill.amount >= 0 ? '↑' : '↓'} ${bill.name}: ${bill.amount >= 0 ? '+' : ''}$${Math.abs(bill.amount).toFixed(2)}
+                            </div>`
                         ).join('')}
+                        ${billsOnDay.length > 3 ? `<div class="more-bills">+${billsOnDay.length - 3} more...</div>` : ''}
                     </div>
                 `;
 
@@ -602,7 +1015,10 @@
             const balances = {};
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            let runningBalance = data.initialBalance;
+            // Calculate the starting balance by computing all transactions from the initial balance date
+            let startingBalance = calculateStartingBalanceForMonth(year, month);
+
+            let runningBalance = startingBalance;
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(year, month, day);
@@ -616,31 +1032,74 @@
             return balances;
         }
 
+        function calculateStartingBalanceForMonth(year, month) {
+            // Start from the initial balance
+            let balance = data.initialBalance;
+            
+            // Determine the start date for calculations
+            const initialDate = data.initialBalanceDate ? parseDateString(data.initialBalanceDate) : new Date(year, month, 1);
+            const targetMonthStart = new Date(year, month, 1);
+            
+            // If we're viewing a month before the initial balance date, just return initial balance
+            if (targetMonthStart <= initialDate) {
+                return balance;
+            }
+            
+            // Calculate all bills from initial balance date to the start of target month
+            let currentDate = new Date(initialDate);
+            
+            while (currentDate < targetMonthStart) {
+                const bills = getBillsForDate(currentDate);
+                const dayTotal = bills.reduce((sum, bill) => sum + bill.amount, 0);
+                balance += dayTotal;
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return balance;
+        }
+
         function getBillsForDate(date) {
             return data.bills.filter(bill => billOccursOnDate(bill, date));
         }
 
         function billOccursOnDate(bill, date) {
-            const billDate = new Date(bill.date);
+            const billDate = parseDateString(bill.date);
             
-            if (date < billDate) return false;
+            // Normalize dates to remove time component for comparison
+            const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const normalizedBillDate = new Date(billDate.getFullYear(), billDate.getMonth(), billDate.getDate());
+            
+            // Bill can't occur before it starts
+            if (normalizedDate < normalizedBillDate) return false;
 
-            if (bill.type === 'one-time') {
-                return date.toDateString() === billDate.toDateString();
+            // Check for end date on recurring bills
+            if (bill.endDate) {
+                const endDate = parseDateString(bill.endDate);
+                if (normalizedDate > endDate) return false;
             }
 
-            const daysDiff = Math.floor((date - billDate) / (1000 * 60 * 60 * 24));
+            if (bill.type === 'one-time') {
+                return normalizedDate.getTime() === normalizedBillDate.getTime();
+            }
+
+            const daysDiff = Math.floor((normalizedDate - normalizedBillDate) / (1000 * 60 * 60 * 24));
 
             switch (bill.type) {
                 case 'daily':
                     return true;
                 case 'weekly':
                     return daysDiff % 7 === 0;
+                case 'biweekly':
+                    return daysDiff % 14 === 0;
                 case 'monthly':
-                    return date.getDate() === billDate.getDate();
+                    // Handle months with fewer days
+                    const billDay = normalizedBillDate.getDate();
+                    const daysInMonth = new Date(normalizedDate.getFullYear(), normalizedDate.getMonth() + 1, 0).getDate();
+                    const effectiveDay = Math.min(billDay, daysInMonth);
+                    return normalizedDate.getDate() === effectiveDay;
                 case 'yearly':
-                    return date.getDate() === billDate.getDate() && 
-                           date.getMonth() === billDate.getMonth();
+                    return normalizedDate.getDate() === normalizedBillDate.getDate() && 
+                           normalizedDate.getMonth() === normalizedBillDate.getMonth();
                 default:
                     return false;
             }
@@ -654,8 +1113,34 @@
             document.getElementById('modalTitle').textContent = 
                 `${monthNames[currentMonth]} ${day}, ${currentYear}`;
             
+            // Show day summary
+            updateDaySummary();
             renderBillsList();
             document.getElementById('dayModal').classList.add('active');
+            document.getElementById('billName').focus();
+        }
+
+        function updateDaySummary() {
+            const bills = getBillsForDate(selectedDate);
+            const income = bills.filter(b => b.amount > 0).reduce((sum, b) => sum + b.amount, 0);
+            const expenses = bills.filter(b => b.amount < 0).reduce((sum, b) => sum + Math.abs(b.amount), 0);
+            const net = income - expenses;
+            
+            const summaryEl = document.getElementById('daySummary');
+            summaryEl.innerHTML = `
+                <div class="summary-item income-summary">
+                    <span>Income</span>
+                    <span>+$${income.toFixed(2)}</span>
+                </div>
+                <div class="summary-item expense-summary">
+                    <span>Expenses</span>
+                    <span>-$${expenses.toFixed(2)}</span>
+                </div>
+                <div class="summary-item net-summary ${net >= 0 ? 'net-positive' : 'net-negative'}">
+                    <span>Net</span>
+                    <span>${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span>
+                </div>
+            `;
         }
 
         function closeModal() {
@@ -663,77 +1148,214 @@
             document.getElementById('billName').value = '';
             document.getElementById('billAmount').value = '';
             document.getElementById('billType').value = 'one-time';
+            document.getElementById('billCategory').value = 'other';
+            document.getElementById('billEndDate').value = '';
         }
 
         function addBill() {
             const name = document.getElementById('billName').value.trim();
             const amount = parseFloat(document.getElementById('billAmount').value);
             const type = document.getElementById('billType').value;
+            const category = document.getElementById('billCategory').value;
+            const endDate = document.getElementById('billEndDate').value || null;
+            const isExpense = document.getElementById('isExpense').checked;
 
-            if (!name || isNaN(amount)) {
-                alert('Please enter a valid bill name and amount');
+            if (!name || isNaN(amount) || amount === 0) {
+                alert('Please enter a valid bill name and non-zero amount');
                 return;
             }
+
+            // Apply negative sign if it's an expense
+            const finalAmount = isExpense ? -Math.abs(amount) : Math.abs(amount);
 
             const bill = {
                 id: Date.now(),
                 name,
-                amount,
+                amount: finalAmount,
                 type,
-                date: selectedDate.toISOString().split('T')[0]
+                category,
+                date: formatDateString(selectedDate),
+                endDate: endDate || null
             };
 
             data.bills.push(bill);
             saveToStorage();
+            updateDaySummary();
             renderBillsList();
             renderCalendar();
 
+            // Reset form
             document.getElementById('billName').value = '';
             document.getElementById('billAmount').value = '';
             document.getElementById('billType').value = 'one-time';
+            document.getElementById('billCategory').value = 'other';
+            document.getElementById('billEndDate').value = '';
+            document.getElementById('isExpense').checked = true;
+            
+            // Show confirmation
+            showToast(`${name} added successfully!`);
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
         }
 
         function renderBillsList() {
             const billsList = document.getElementById('billsList');
-            const bills = data.bills.filter(bill => {
-                const billDate = new Date(bill.date);
-                return billOccursOnDate(bill, selectedDate) || 
-                       (bill.date === selectedDate.toISOString().split('T')[0]);
+            const selectedDateStr = formatDateString(selectedDate);
+            
+            // Get all bills that occur on this date
+            const billsOnDate = getBillsForDate(selectedDate);
+            
+            // Also get recurring bills that were created on this date (to show their origin)
+            const billsCreatedOnDate = data.bills.filter(bill => bill.date === selectedDateStr);
+            
+            // Combine and deduplicate
+            const allBillsMap = new Map();
+            billsOnDate.forEach(bill => allBillsMap.set(bill.id, { ...bill, isOccurrence: true }));
+            billsCreatedOnDate.forEach(bill => {
+                if (!allBillsMap.has(bill.id)) {
+                    allBillsMap.set(bill.id, { ...bill, isOccurrence: false });
+                }
             });
+            
+            const bills = Array.from(allBillsMap.values());
 
             if (bills.length === 0) {
-                billsList.innerHTML = '<p style="text-align: center; color: #6c757d; margin-top: 20px;">No bills on this day</p>';
+                billsList.innerHTML = '<p class="no-bills">No transactions on this day. Add one above!</p>';
                 return;
             }
 
+            // Sort: income first, then expenses, then by amount
+            bills.sort((a, b) => {
+                if (a.amount >= 0 && b.amount < 0) return -1;
+                if (a.amount < 0 && b.amount >= 0) return 1;
+                return Math.abs(b.amount) - Math.abs(a.amount);
+            });
+
             billsList.innerHTML = `
-                <h3 style="margin-top: 20px; margin-bottom: 10px;">Bills on this day:</h3>
-                ${bills.map(bill => `
+                <h3 class="bills-list-header">Transactions on this day:</h3>
+                ${bills.map(bill => {
+                    const isRecurring = bill.type !== 'one-time';
+                    const wasCreatedOnDifferentDate = bill.date !== selectedDateStr;
+                    const categoryEmoji = getCategoryEmoji(bill.category);
+                    
+                    return `
                     <div class="bill-item ${bill.amount >= 0 ? 'income' : 'expense'}">
+                        <div class="bill-category-icon">${categoryEmoji}</div>
                         <div class="bill-info">
-                            <div class="bill-name">${bill.name}</div>
+                            <div class="bill-name">
+                                ${bill.name}
+                                ${isRecurring ? `<span class="recurring-badge">${getRecurringLabel(bill.type)}</span>` : ''}
+                            </div>
                             <div class="bill-details">
-                                ${bill.type === 'one-time' ? 'One-time' : `Recurring ${bill.type}`}
-                                ${bill.date !== selectedDate.toISOString().split('T')[0] ? 
-                                  ` (Started ${bill.date})` : ''}
+                                ${bill.category ? capitalizeFirst(bill.category) : ''}
+                                ${wasCreatedOnDifferentDate ? ` • Started ${formatDisplayDate(bill.date)}` : ''}
+                                ${bill.endDate ? ` • Ends ${formatDisplayDate(bill.endDate)}` : ''}
                             </div>
                         </div>
                         <span class="bill-amount ${bill.amount >= 0 ? 'amount-positive' : 'amount-negative'}">
-                            ${bill.amount >= 0 ? '+' : ''}$${bill.amount.toFixed(2)}
+                            ${bill.amount >= 0 ? '+' : '-'}$${Math.abs(bill.amount).toFixed(2)}
                         </span>
-                        <button class="delete-bill" onclick="deleteBill(${bill.id})">Delete</button>
+                        <div class="bill-actions">
+                            <button class="edit-bill" onclick="editBill(${bill.id})" title="Edit">✏️</button>
+                            <button class="delete-bill" onclick="deleteBill(${bill.id})" title="Delete">🗑️</button>
+                        </div>
                     </div>
-                `).join('')}
+                `}).join('')}
             `;
         }
 
+        function getCategoryEmoji(category) {
+            const emojis = {
+                'salary': '💰',
+                'food': '🍔',
+                'transport': '🚗',
+                'utilities': '💡',
+                'entertainment': '🎮',
+                'shopping': '🛍️',
+                'health': '🏥',
+                'education': '📚',
+                'savings': '🏦',
+                'rent': '🏠',
+                'subscriptions': '📱',
+                'other': '📝'
+            };
+            return emojis[category] || '📝';
+        }
+
+        function getRecurringLabel(type) {
+            const labels = {
+                'daily': '📅 Daily',
+                'weekly': '📅 Weekly',
+                'biweekly': '📅 Bi-weekly',
+                'monthly': '📅 Monthly',
+                'yearly': '📅 Yearly'
+            };
+            return labels[type] || type;
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function formatDisplayDate(dateStr) {
+            const date = parseDateString(dateStr);
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+
+        function editBill(billId) {
+            const bill = data.bills.find(b => b.id === billId);
+            if (!bill) return;
+
+            document.getElementById('billName').value = bill.name;
+            document.getElementById('billAmount').value = Math.abs(bill.amount);
+            document.getElementById('billType').value = bill.type;
+            document.getElementById('billCategory').value = bill.category || 'other';
+            document.getElementById('billEndDate').value = bill.endDate || '';
+            document.getElementById('isExpense').checked = bill.amount < 0;
+
+            // Delete the old bill and let the user add the updated one
+            data.bills = data.bills.filter(b => b.id !== billId);
+            saveToStorage();
+            updateDaySummary();
+            renderBillsList();
+            renderCalendar();
+            
+            document.getElementById('billName').focus();
+            showToast('Editing bill - make changes and click Add');
+        }
+
         function deleteBill(billId) {
-            if (confirm('Are you sure you want to delete this bill?')) {
-                data.bills = data.bills.filter(bill => bill.id !== billId);
-                saveToStorage();
-                renderBillsList();
-                renderCalendar();
+            const bill = data.bills.find(b => b.id === billId);
+            if (!bill) return;
+
+            const isRecurring = bill.type !== 'one-time';
+            
+            if (isRecurring) {
+                const choice = confirm(`"${bill.name}" is a recurring transaction.\n\nClick OK to delete ALL occurrences.\nClick Cancel to keep it.`);
+                if (!choice) return;
+            } else {
+                if (!confirm(`Delete "${bill.name}"?`)) return;
             }
+
+            data.bills = data.bills.filter(b => b.id !== billId);
+            saveToStorage();
+            updateDaySummary();
+            renderBillsList();
+            renderCalendar();
+            showToast(`${bill.name} deleted`);
         }
 
         function previousMonth() {
@@ -754,6 +1376,17 @@
             renderCalendar();
         }
 
+        function goToToday() {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+            renderCalendar();
+        }
+
+        function highlightToday() {
+            // Already handled in renderCalendar
+        }
+
         function saveToStorage() {
             localStorage.setItem('budgetTrackerData', JSON.stringify(data));
         }
@@ -761,7 +1394,12 @@
         function loadFromStorage() {
             const stored = localStorage.getItem('budgetTrackerData');
             if (stored) {
-                data = JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                data = {
+                    initialBalance: parsed.initialBalance || 0,
+                    initialBalanceDate: parsed.initialBalanceDate || null,
+                    bills: parsed.bills || []
+                };
             }
         }
 
@@ -774,6 +1412,7 @@
             link.download = `budget-tracker-${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             URL.revokeObjectURL(url);
+            showToast('Data exported successfully!');
         }
 
         function importData(event) {
@@ -785,11 +1424,15 @@
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (confirm('This will replace all current data. Continue?')) {
-                        data = importedData;
+                        data = {
+                            initialBalance: importedData.initialBalance || 0,
+                            initialBalanceDate: importedData.initialBalanceDate || null,
+                            bills: importedData.bills || []
+                        };
                         saveToStorage();
                         renderCalendar();
                         updateInitialBalanceInput();
-                        alert('Data imported successfully!');
+                        showToast('Data imported successfully!');
                     }
                 } catch (error) {
                     alert('Error importing data: Invalid JSON file');
@@ -798,6 +1441,40 @@
             };
             reader.readAsText(file);
         }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+                data = {
+                    initialBalance: 0,
+                    initialBalanceDate: null,
+                    bills: []
+                };
+                saveToStorage();
+                renderCalendar();
+                updateInitialBalanceInput();
+                showToast('All data cleared');
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+            if (e.key === 'ArrowLeft' && !document.getElementById('dayModal').classList.contains('active')) {
+                previousMonth();
+            }
+            if (e.key === 'ArrowRight' && !document.getElementById('dayModal').classList.contains('active')) {
+                nextMonth();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('dayModal').addEventListener('click', (e) => {
+            if (e.target.id === 'dayModal') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
