@@ -661,6 +661,7 @@ function importCSV(event) {
             const descIndex = header.findIndex(h => h.toLowerCase().includes('description'));
             const dateIndex = header.findIndex(h => h.toLowerCase().includes('date'));
             const amountIndex = header.findIndex(h => h.toLowerCase().includes('amount'));
+            const balanceIndex = header.findIndex(h => h.toLowerCase().includes('balance'));
             
             if (descIndex === -1 || dateIndex === -1 || amountIndex === -1) {
                 alert('CSV must contain columns for Description, Date, and Amount');
@@ -668,6 +669,7 @@ function importCSV(event) {
             }
             
             pendingCsvTransactions = [];
+            let previousBalance = null;
             
             // Process each transaction line
             for (let i = 1; i < lines.length; i++) {
@@ -699,6 +701,7 @@ function importCSV(event) {
                 const description = fields[descIndex].replace(/"/g, '');
                 const dateStr = fields[dateIndex].replace(/"/g, '');
                 const amountStr = fields[amountIndex].replace(/"/g, '').replace(/[$,]/g, '');
+                const balanceStr = balanceIndex !== -1 ? fields[balanceIndex].replace(/"/g, '').replace(/[$,]/g, '') : null;
                 
                 if (!description || !dateStr || !amountStr) continue;
                 
@@ -732,8 +735,42 @@ function importCSV(event) {
                 let amount = parseFloat(amountStr);
                 if (isNaN(amount) || amount === 0) continue;
                 
-                // Make all amounts negative (expenses)
-                amount = Math.abs(amount) * -1;
+                // Check if description indicates an expense
+                const descriptionLower = description.toLowerCase();
+                const isDebitOrWithdrawal = descriptionLower.includes('debit card purchase') || 
+                                           descriptionLower.includes('withdrawal');
+                
+                // Determine if income or expense based on balance change
+                if (balanceStr && previousBalance !== null) {
+                    const currentBalance = parseFloat(balanceStr);
+                    const balanceChange = currentBalance - previousBalance;
+                    
+                    // If balance increased, it's income (positive)
+                    // If balance decreased, it's expense (negative)
+                    if (balanceChange > 0) {
+                        amount = Math.abs(amount); // Income
+                    } else {
+                        amount = Math.abs(amount) * -1; // Expense
+                    }
+                    
+                    previousBalance = currentBalance;
+                } else {
+                    // Fallback: check description or make negative
+                    if (isDebitOrWithdrawal) {
+                        amount = Math.abs(amount) * -1; // Expense
+                    } else {
+                        amount = Math.abs(amount) * -1; // Default to expense
+                    }
+                    
+                    if (balanceStr) {
+                        previousBalance = parseFloat(balanceStr);
+                    }
+                }
+                
+                // Override: if description indicates debit/withdrawal, force negative
+                if (isDebitOrWithdrawal && amount > 0) {
+                    amount = amount * -1;
+                }
                 
                 // Store transaction for preview
                 pendingCsvTransactions.push({
