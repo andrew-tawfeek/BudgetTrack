@@ -372,6 +372,11 @@ body.dark-mode .balance-negative {
     box-shadow: 0 20px 60px rgba(0,0,0,0.25);
 }
 
+body.dark-mode .modal-content {
+    background: var(--bg-secondary);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -381,11 +386,19 @@ body.dark-mode .balance-negative {
     border-bottom: 1px solid #e5e7eb;
 }
 
+body.dark-mode .modal-header {
+    border-bottom-color: var(--border-color);
+}
+
 .modal-header h2 {
     color: #1a202c;
     font-size: 1.125rem;
     font-weight: 600;
     letter-spacing: -0.02em;
+}
+
+body.dark-mode .modal-header h2 {
+    color: var(--text-primary);
 }
 
 .close-btn {
@@ -397,8 +410,16 @@ body.dark-mode .balance-negative {
     transition: color 0.3s;
 }
 
+body.dark-mode .close-btn {
+    color: var(--text-muted);
+}
+
 .close-btn:hover {
     color: #dc3545;
+}
+
+body.dark-mode .close-btn:hover {
+    color: #f87171;
 }
 
 .form-group {
@@ -735,6 +756,11 @@ body.dark-mode .today-btn:hover {
     border: 1px solid #e5e7eb;
 }
 
+body.dark-mode .day-summary {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
 .summary-item {
     flex: 1;
     text-align: center;
@@ -742,6 +768,11 @@ body.dark-mode .today-btn:hover {
     border-radius: 6px;
     background: white;
     border: 1px solid #e5e7eb;
+}
+
+body.dark-mode .summary-item {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 .summary-item span:first-child {
@@ -752,6 +783,10 @@ body.dark-mode .today-btn:hover {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+body.dark-mode .summary-item span:first-child {
+    color: var(--text-muted);
 }
 
 .summary-item span:last-child {
@@ -765,16 +800,32 @@ body.dark-mode .today-btn:hover {
     color: #059669;
 }
 
+body.dark-mode .income-summary span:last-child {
+    color: #6ee7b7;
+}
+
 .expense-summary span:last-child {
     color: #dc2626;
+}
+
+body.dark-mode .expense-summary span:last-child {
+    color: #fca5a5;
 }
 
 .net-positive span:last-child {
     color: #059669;
 }
 
+body.dark-mode .net-positive span:last-child {
+    color: #6ee7b7;
+}
+
 .net-negative span:last-child {
     color: #dc2626;
+}
+
+body.dark-mode .net-negative span:last-child {
+    color: #fca5a5;
 }
 
 /* Add Transaction Form */
@@ -787,12 +838,22 @@ body.dark-mode .today-btn:hover {
     border-left: 3px solid #2563eb;
 }
 
+body.dark-mode .add-transaction-form {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.3);
+    border-left-color: #3b82f6;
+}
+
 .add-transaction-form h3 {
     margin: 0 0 12px 0;
     color: #1a202c;
     font-size: 0.9375rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+}
+
+body.dark-mode .add-transaction-form h3 {
+    color: var(--text-primary);
 }
 
 .form-row {
@@ -841,6 +902,10 @@ body.dark-mode .today-btn:hover {
     flex-shrink: 0;
 }
 
+body.dark-mode .toggle-slider {
+    background: #ef4444;
+}
+
 .toggle-slider::before {
     content: '';
     position: absolute;
@@ -856,6 +921,10 @@ body.dark-mode .today-btn:hover {
 
 .toggle-label input:checked + .toggle-slider {
     background: #059669;
+}
+
+body.dark-mode .toggle-label input:checked + .toggle-slider {
+    background: #10b981;
 }
 
 .toggle-label input:checked + .toggle-slider::before {
@@ -877,9 +946,17 @@ body.dark-mode .today-btn:hover {
     color: #059669;
 }
 
+body.dark-mode .toggle-label input:checked ~ .income-text {
+    color: #6ee7b7;
+}
+
 .toggle-label input:not(:checked) ~ .expense-text {
     display: inline;
     color: #dc2626;
+}
+
+body.dark-mode .toggle-label input:not(:checked) ~ .expense-text {
+    color: #fca5a5;
 }
 
 .toggle-label input:not(:checked) ~ .income-text {
