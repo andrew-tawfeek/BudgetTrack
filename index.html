@@ -9,8 +9,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Budget Tracker</h1>
-            <p>Track your income and expenses with precision</p>
+            <img src="icon.png" alt="Logo" class="header-logo">
+            <h1>A+A Budget Tracker</h1>
         </div>
 
         <div class="initial-balance-section">
@@ -137,6 +137,17 @@
 
             <div class="day-summary" id="daySummary"></div>
 
+            <div class="balance-adjustment-section">
+                <h4>Balance Adjustment</h4>
+                <div class="balance-adjustment-form">
+                    <div class="form-group">
+                        <label for="balanceAdjustment">Set New Balance:</label>
+                        <input type="number" id="balanceAdjustment" step="0.01" placeholder="Enter balance">
+                    </div>
+                    <button class="btn" onclick="adjustBalance()">Update</button>
+                </div>
+            </div>
+
             <div class="add-transaction-form">
                 <h3>Add Transaction</h3>
                 
@@ -154,7 +165,7 @@
                     </div>
                     <div class="form-group toggle-group">
                         <label class="toggle-label">
-                            <input type="checkbox" id="isExpense" checked>
+                            <input type="checkbox" id="isIncome">
                             <span class="toggle-slider"></span>
                             <span class="toggle-text expense-text">Expense</span>
                             <span class="toggle-text income-text">Income</span>

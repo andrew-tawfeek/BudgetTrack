@@ -28,26 +28,10 @@ let data = {
 document.addEventListener('DOMContentLoaded', () => {
     loadFromStorage();
     renderCalendar();
-    updateInitialBalanceInput();
     highlightToday();
     initializeGraphDates();
     initializeTableDates();
 });
-
-function updateInitialBalanceInput() {
-    document.getElementById('initialBalance').value = data.initialBalance;
-}
-
-function setInitialBalance() {
-    const value = parseFloat(document.getElementById('initialBalance').value) || 0;
-    data.initialBalance = value;
-    // Set the initial balance date to the first of the current month if not set
-    if (!data.initialBalanceDate) {
-        data.initialBalanceDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-    }
-    saveToStorage();
-    renderCalendar();
-}
 
 function formatDateString(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -242,7 +226,7 @@ function openDayModal(day) {
     document.getElementById('modalTitle').textContent = 
         `${monthNames[currentMonth]} ${day}, ${currentYear}`;
     
-    // Show day summary
+    // Show day summary and initialize balance adjustment
     updateDaySummary();
     renderBillsList();
     document.getElementById('dayModal').classList.add('active');
@@ -270,6 +254,55 @@ function updateDaySummary() {
             <span>${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span>
         </div>
     `;
+    
+    // Update balance adjustment input with current balance
+    updateBalanceAdjustmentInput();
+}
+
+function updateBalanceAdjustmentInput() {
+    const balances = calculateBalances(selectedDate.getFullYear(), selectedDate.getMonth());
+    const dayBalance = balances[selectedDate.getDate()];
+    document.getElementById('balanceAdjustment').value = dayBalance.toFixed(2);
+}
+
+function adjustBalance() {
+    const newBalance = parseFloat(document.getElementById('balanceAdjustment').value);
+    
+    if (isNaN(newBalance)) {
+        alert('Please enter a valid balance amount');
+        return;
+    }
+    
+    // Calculate current balance for the day
+    const balances = calculateBalances(selectedDate.getFullYear(), selectedDate.getMonth());
+    const currentBalance = balances[selectedDate.getDate()];
+    
+    // Calculate the difference
+    const difference = newBalance - currentBalance;
+    
+    if (Math.abs(difference) < 0.01) {
+        showToast('Balance is already at this amount');
+        return;
+    }
+    
+    // Create a balance adjustment transaction
+    const bill = {
+        id: Date.now(),
+        name: 'Balance Adjustment',
+        amount: difference,
+        type: 'one-time',
+        category: 'other',
+        date: formatDateString(selectedDate),
+        endDate: null
+    };
+    
+    data.bills.push(bill);
+    saveToStorage();
+    updateDaySummary();
+    renderBillsList();
+    renderCalendar();
+    
+    showToast(`Balance adjusted by ${difference >= 0 ? '+' : ''}$${difference.toFixed(2)}`);
 }
 
 function closeModal() {
@@ -279,6 +312,8 @@ function closeModal() {
     document.getElementById('billType').value = 'one-time';
     document.getElementById('billCategory').value = 'other';
     document.getElementById('billEndDate').value = '';
+    document.getElementById('isIncome').checked = false;
+    document.getElementById('balanceAdjustment').value = '';
 }
 
 function addBill() {
@@ -287,15 +322,15 @@ function addBill() {
     const type = document.getElementById('billType').value;
     const category = document.getElementById('billCategory').value;
     const endDate = document.getElementById('billEndDate').value || null;
-    const isExpense = document.getElementById('isExpense').checked;
+    const isIncome = document.getElementById('isIncome').checked;
 
     if (!name || isNaN(amount) || amount === 0) {
         alert('Please enter a valid bill name and non-zero amount');
         return;
     }
 
-    // Apply negative sign if it's an expense
-    const finalAmount = isExpense ? -Math.abs(amount) : Math.abs(amount);
+    // Apply positive sign if it's income, negative if expense
+    const finalAmount = isIncome ? Math.abs(amount) : -Math.abs(amount);
 
     const bill = {
         id: Date.now(),
@@ -319,7 +354,7 @@ function addBill() {
     document.getElementById('billType').value = 'one-time';
     document.getElementById('billCategory').value = 'other';
     document.getElementById('billEndDate').value = '';
-    document.getElementById('isExpense').checked = true;
+    document.getElementById('isIncome').checked = false;
     
     // Show confirmation
     showToast(`${name} added successfully!`);
@@ -453,7 +488,7 @@ function editBill(billId) {
     document.getElementById('billType').value = bill.type;
     document.getElementById('billCategory').value = bill.category || 'other';
     document.getElementById('billEndDate').value = bill.endDate || '';
-    document.getElementById('isExpense').checked = bill.amount < 0;
+    document.getElementById('isIncome').checked = bill.amount > 0;
 
     // Delete the old bill and let the user add the updated one
     data.bills = data.bills.filter(b => b.id !== billId);
@@ -567,7 +602,6 @@ function importData(event) {
                 data = migrateData(importedData);
                 saveToStorage();
                 renderCalendar();
-                updateInitialBalanceInput();
                 initializeGraphDates();
                 initializeTableDates();
                 showToast('Data imported successfully!');
@@ -600,23 +634,59 @@ function clearAllData() {
         };
         saveToStorage();
         renderCalendar();
-        updateInitialBalanceInput();
         showToast('All data cleared');
     }
 }
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
+    // Check if modal is open
+    const modalOpen = document.getElementById('dayModal').classList.contains('active');
+    
     if (e.key === 'Escape') {
-        closeModal();
+        if (modalOpen) {
+            closeModal();
+        }
+        // Return to calendar view if on other tabs
+        if (!modalOpen) {
+            const calendarTab = document.querySelector('.tab-btn:first-child');
+            if (!calendarTab.classList.contains('active')) {
+                switchTabDirectly('calendar');
+            }
+        }
     }
-    if (e.key === 'ArrowLeft' && !document.getElementById('dayModal').classList.contains('active')) {
-        previousMonth();
-    }
-    if (e.key === 'ArrowRight' && !document.getElementById('dayModal').classList.contains('active')) {
-        nextMonth();
+    
+    if (!modalOpen) {
+        if (e.key === 'ArrowLeft') {
+            previousMonth();
+        }
+        if (e.key === 'ArrowRight') {
+            nextMonth();
+        }
     }
 });
+
+// Helper function to switch tabs programmatically
+function switchTabDirectly(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + 'Tab').classList.remove('hidden');
+    
+    // Add active class to correct button
+    const buttons = document.querySelectorAll('.tab-btn');
+    if (tabName === 'calendar') buttons[0].classList.add('active');
+    else if (tabName === 'graph') buttons[1].classList.add('active');
+    else if (tabName === 'table') buttons[2].classList.add('active');
+}
 
 // Close modal when clicking outside
 document.getElementById('dayModal').addEventListener('click', (e) => {
