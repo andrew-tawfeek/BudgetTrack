@@ -396,8 +396,8 @@ function renderBillsList() {
                     ${bill.amount >= 0 ? '+' : '-'}$${Math.abs(bill.amount).toFixed(2)}
                 </span>
                 <div class="bill-actions">
-                    <button class="edit-bill" onclick="editBill(${bill.id})" title="Edit">✏️</button>
-                    <button class="delete-bill" onclick="deleteBill(${bill.id})" title="Delete">🗑️</button>
+                    <button class="edit-bill" onclick="editBill(${bill.id})" title="Edit">Edit</button>
+                    <button class="delete-bill" onclick="deleteBill(${bill.id})" title="Delete">Delete</button>
                 </div>
             </div>
         `}).join('')}
@@ -405,30 +405,30 @@ function renderBillsList() {
 }
 
 function getCategoryEmoji(category) {
-    const emojis = {
-        'salary': '💰',
-        'food': '🍔',
-        'transport': '🚗',
-        'utilities': '💡',
-        'entertainment': '🎮',
-        'shopping': '🛍️',
-        'health': '🏥',
-        'education': '📚',
-        'savings': '🏦',
-        'rent': '🏠',
-        'subscriptions': '📱',
-        'other': '📝'
+    const icons = {
+        'salary': 'SAL',
+        'food': 'FOOD',
+        'transport': 'TRAN',
+        'utilities': 'UTIL',
+        'entertainment': 'ENT',
+        'shopping': 'SHOP',
+        'health': 'HLTH',
+        'education': 'EDU',
+        'savings': 'SAVE',
+        'rent': 'RENT',
+        'subscriptions': 'SUB',
+        'other': 'OTH'
     };
-    return emojis[category] || '📝';
+    return icons[category] || 'OTH';
 }
 
 function getRecurringLabel(type) {
     const labels = {
-        'daily': '📅 Daily',
-        'weekly': '📅 Weekly',
-        'biweekly': '📅 Bi-weekly',
-        'monthly': '📅 Monthly',
-        'yearly': '📅 Yearly'
+        'daily': 'Daily',
+        'weekly': 'Weekly',
+        'biweekly': 'Bi-weekly',
+        'monthly': 'Monthly',
+        'yearly': 'Yearly'
     };
     return labels[type] || type;
 }
