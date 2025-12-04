@@ -1,13 +1,27 @@
-// Data structure
+// Data structure with versioning for future compatibility
+const DATA_VERSION = '1.0.0';
+
 let currentDate = new Date();
 let currentYear = currentDate.getFullYear();
 let currentMonth = currentDate.getMonth();
 let selectedDate = null;
 
+// Standardized data format
 let data = {
+    version: DATA_VERSION,
     initialBalance: 0,
     initialBalanceDate: null, // Date when initial balance was set
-    bills: []
+    bills: [],
+    settings: {
+        graphDateRange: {
+            start: null,
+            end: null
+        },
+        tableDateRange: {
+            start: null,
+            end: null
+        }
+    }
 };
 
 // Initialize
@@ -16,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar();
     updateInitialBalanceInput();
     highlightToday();
+    initializeGraphDates();
+    initializeTableDates();
 });
 
 function updateInitialBalanceInput() {
@@ -509,9 +525,20 @@ function loadFromStorage() {
     if (stored) {
         const parsed = JSON.parse(stored);
         data = {
+            version: DATA_VERSION,
             initialBalance: parsed.initialBalance || 0,
             initialBalanceDate: parsed.initialBalanceDate || null,
-            bills: parsed.bills || []
+            bills: parsed.bills || [],
+            settings: {
+                graphDateRange: {
+                    start: parsed.settings?.graphDateRange?.start || null,
+                    end: parsed.settings?.graphDateRange?.end || null
+                },
+                tableDateRange: {
+                    start: parsed.settings?.tableDateRange?.start || null,
+                    end: parsed.settings?.tableDateRange?.end || null
+                }
+            }
         };
     }
 }
@@ -537,14 +564,12 @@ function importData(event) {
         try {
             const importedData = JSON.parse(e.target.result);
             if (confirm('This will replace all current data. Continue?')) {
-                data = {
-                    initialBalance: importedData.initialBalance || 0,
-                    initialBalanceDate: importedData.initialBalanceDate || null,
-                    bills: importedData.bills || []
-                };
+                data = migrateData(importedData);
                 saveToStorage();
                 renderCalendar();
                 updateInitialBalanceInput();
+                initializeGraphDates();
+                initializeTableDates();
                 showToast('Data imported successfully!');
             }
         } catch (error) {
@@ -558,9 +583,20 @@ function importData(event) {
 function clearAllData() {
     if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
         data = {
+            version: DATA_VERSION,
             initialBalance: 0,
             initialBalanceDate: null,
-            bills: []
+            bills: [],
+            settings: {
+                graphDateRange: {
+                    start: null,
+                    end: null
+                },
+                tableDateRange: {
+                    start: null,
+                    end: null
+                }
+            }
         };
         saveToStorage();
         renderCalendar();
@@ -588,3 +624,466 @@ document.getElementById('dayModal').addEventListener('click', (e) => {
         closeModal();
     }
 });
+
+// ==================== TAB SYSTEM ====================
+
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + 'Tab').classList.remove('hidden');
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+    
+    // Initialize tab-specific content
+    if (tabName === 'graph') {
+        // Ensure dates are set before updating
+        if (!document.getElementById('graphStartDate').value || !document.getElementById('graphEndDate').value) {
+            initializeGraphDates();
+        }
+        updateGraph();
+    } else if (tabName === 'table') {
+        // Ensure dates are set before updating
+        if (!document.getElementById('tableStartDate').value || !document.getElementById('tableEndDate').value) {
+            initializeTableDates();
+        }
+        updateTable();
+    }
+}
+
+// ==================== GRAPH VIEW ====================
+
+function initializeGraphDates() {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
+    
+    // Load saved dates from settings
+    if (data.settings.graphDateRange.start && data.settings.graphDateRange.end) {
+        document.getElementById('graphStartDate').value = data.settings.graphDateRange.start;
+        document.getElementById('graphEndDate').value = data.settings.graphDateRange.end;
+    } else {
+        document.getElementById('graphStartDate').value = formatDateString(startDate);
+        document.getElementById('graphEndDate').value = formatDateString(endDate);
+    }
+}
+
+function setGraphDateRange(range) {
+    const endDate = new Date();
+    const startDate = new Date();
+    
+    switch(range) {
+        case 'month':
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+        case 'quarter':
+            startDate.setMonth(startDate.getMonth() - 3);
+            break;
+        case 'year':
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+    }
+    
+    document.getElementById('graphStartDate').value = formatDateString(startDate);
+    document.getElementById('graphEndDate').value = formatDateString(endDate);
+    updateGraph();
+}
+
+function updateGraph() {
+    const startDateStr = document.getElementById('graphStartDate').value;
+    const endDateStr = document.getElementById('graphEndDate').value;
+    
+    if (!startDateStr || !endDateStr) return;
+    
+    // Save date range to settings
+    data.settings.graphDateRange.start = startDateStr;
+    data.settings.graphDateRange.end = endDateStr;
+    saveToStorage();
+    
+    const startDate = parseDateString(startDateStr);
+    const endDate = parseDateString(endDateStr);
+    
+    // Generate data points for each day
+    const dataPoints = [];
+    let runningBalance = data.initialBalance;
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    
+    // Get initial balance for start date
+    const initialBalanceDate = data.initialBalanceDate ? parseDateString(data.initialBalanceDate) : null;
+    if (initialBalanceDate && initialBalanceDate < startDate) {
+        // Calculate all transactions from initial balance date to start date
+        const tempDate = new Date(initialBalanceDate);
+        while (tempDate < startDate) {
+            const bills = getBillsForDate(tempDate);
+            bills.forEach(bill => {
+                runningBalance += bill.amount;
+            });
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+    }
+    
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        const bills = getBillsForDate(currentDate);
+        
+        bills.forEach(bill => {
+            runningBalance += bill.amount;
+            if (bill.amount > 0) {
+                totalIncome += bill.amount;
+            } else {
+                totalExpenses += Math.abs(bill.amount);
+            }
+        });
+        
+        dataPoints.push({
+            date: new Date(currentDate),
+            balance: runningBalance
+        });
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Update statistics
+    const netChange = totalIncome - totalExpenses;
+    const dayCount = dataPoints.length || 1;
+    const avgDaily = netChange / dayCount;
+    
+    document.getElementById('statIncome').textContent = `$${totalIncome.toFixed(2)}`;
+    document.getElementById('statExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
+    document.getElementById('statNet').textContent = `$${netChange.toFixed(2)}`;
+    document.getElementById('statNet').className = `stat-value ${netChange >= 0 ? 'income' : 'expense'}`;
+    document.getElementById('statAvgDaily').textContent = `$${avgDaily.toFixed(2)}`;
+    document.getElementById('statAvgDaily').className = `stat-value ${avgDaily >= 0 ? 'income' : 'expense'}`;
+    
+    // Draw graph
+    drawGraph(dataPoints);
+}
+
+function drawGraph(dataPoints) {
+    const canvas = document.getElementById('balanceChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 400;
+    
+    if (dataPoints.length === 0) {
+        ctx.fillStyle = '#6c757d';
+        ctx.font = '16px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('No data available for selected date range', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Calculate dimensions
+    const padding = 60;
+    const graphWidth = canvas.width - padding * 2;
+    const graphHeight = canvas.height - padding * 2;
+    
+    // Find min and max balance
+    const balances = dataPoints.map(p => p.balance);
+    const minBalance = Math.min(...balances);
+    const maxBalance = Math.max(...balances);
+    const balanceRange = maxBalance - minBalance || 1;
+    
+    // Draw grid lines
+    ctx.strokeStyle = '#e9ecef';
+    ctx.lineWidth = 1;
+    
+    const gridLines = 5;
+    for (let i = 0; i <= gridLines; i++) {
+        const y = padding + (graphHeight / gridLines) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(canvas.width - padding, y);
+        ctx.stroke();
+        
+        // Draw y-axis labels
+        const balance = maxBalance - (balanceRange / gridLines) * i;
+        ctx.fillStyle = '#6c757d';
+        ctx.font = '12px Segoe UI';
+        ctx.textAlign = 'right';
+        ctx.fillText(`$${balance.toFixed(0)}`, padding - 10, y + 4);
+    }
+    
+    // Draw x-axis
+    ctx.strokeStyle = '#495057';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padding, canvas.height - padding);
+    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.stroke();
+    
+    // Draw y-axis
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, canvas.height - padding);
+    ctx.stroke();
+    
+    // Draw line graph
+    ctx.strokeStyle = '#667eea';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    
+    dataPoints.forEach((point, index) => {
+        const x = padding + (graphWidth / (dataPoints.length - 1 || 1)) * index;
+        const y = canvas.height - padding - ((point.balance - minBalance) / balanceRange) * graphHeight;
+        
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+    
+    ctx.stroke();
+    
+    // Draw points
+    ctx.fillStyle = '#667eea';
+    dataPoints.forEach((point, index) => {
+        const x = padding + (graphWidth / (dataPoints.length - 1 || 1)) * index;
+        const y = canvas.height - padding - ((point.balance - minBalance) / balanceRange) * graphHeight;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    
+    // Draw date labels
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    
+    const labelInterval = Math.ceil(dataPoints.length / 8) || 1;
+    dataPoints.forEach((point, index) => {
+        if (index % labelInterval === 0 || index === dataPoints.length - 1) {
+            const x = padding + (graphWidth / (dataPoints.length - 1 || 1)) * index;
+            const dateStr = `${point.date.getMonth() + 1}/${point.date.getDate()}`;
+            ctx.fillText(dateStr, x, canvas.height - padding + 20);
+        }
+    });
+}
+
+// ==================== TABLE VIEW ====================
+
+function initializeTableDates() {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
+    
+    // Load saved dates from settings
+    if (data.settings.tableDateRange.start && data.settings.tableDateRange.end) {
+        document.getElementById('tableStartDate').value = data.settings.tableDateRange.start;
+        document.getElementById('tableEndDate').value = data.settings.tableDateRange.end;
+    } else {
+        document.getElementById('tableStartDate').value = formatDateString(startDate);
+        document.getElementById('tableEndDate').value = formatDateString(endDate);
+    }
+}
+
+function setTableDateRange(range) {
+    const endDate = new Date();
+    const startDate = new Date();
+    
+    switch(range) {
+        case 'month':
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+        case 'quarter':
+            startDate.setMonth(startDate.getMonth() - 3);
+            break;
+        case 'year':
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+    }
+    
+    document.getElementById('tableStartDate').value = formatDateString(startDate);
+    document.getElementById('tableEndDate').value = formatDateString(endDate);
+    updateTable();
+}
+
+function updateTable() {
+    const startDateStr = document.getElementById('tableStartDate').value;
+    const endDateStr = document.getElementById('tableEndDate').value;
+    
+    if (!startDateStr || !endDateStr) return;
+    
+    // Save date range to settings
+    data.settings.tableDateRange.start = startDateStr;
+    data.settings.tableDateRange.end = endDateStr;
+    saveToStorage();
+    
+    const startDate = parseDateString(startDateStr);
+    const endDate = parseDateString(endDateStr);
+    
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+    
+    // Calculate initial balance for start date
+    let runningBalance = data.initialBalance;
+    const initialBalanceDate = data.initialBalanceDate ? parseDateString(data.initialBalanceDate) : null;
+    
+    if (initialBalanceDate && initialBalanceDate < startDate) {
+        const tempDate = new Date(initialBalanceDate);
+        while (tempDate < startDate) {
+            const bills = getBillsForDate(tempDate);
+            bills.forEach(bill => {
+                runningBalance += bill.amount;
+            });
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+    }
+    
+    // Generate table rows
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        const bills = getBillsForDate(currentDate);
+        const dateStr = formatDateString(currentDate);
+        const dayStartBalance = runningBalance;
+        
+        if (bills.length === 0) {
+            // Show day with no transactions
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>${dateStr}</td>
+                <td colspan="3" style="text-align: center; color: #6c757d; font-style: italic;">No transactions</td>
+                <td>-</td>
+                <td>-</td>
+                <td class="balance">$${runningBalance.toFixed(2)}</td>
+                <td>$0.00</td>
+            `;
+        } else {
+            bills.forEach(bill => {
+                const row = tableBody.insertRow();
+                const income = bill.amount > 0 ? bill.amount : 0;
+                const expense = bill.amount < 0 ? Math.abs(bill.amount) : 0;
+                
+                runningBalance += bill.amount;
+                const balanceChange = bill.amount;
+                
+                row.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>${bill.name}</td>
+                    <td>${getCategoryEmoji(bill.category)} ${bill.category}</td>
+                    <td>${bill.type}</td>
+                    <td class="${income > 0 ? 'income' : ''}">${income > 0 ? '$' + income.toFixed(2) : '-'}</td>
+                    <td class="${expense > 0 ? 'expense' : ''}">${expense > 0 ? '$' + expense.toFixed(2) : '-'}</td>
+                    <td class="balance">$${runningBalance.toFixed(2)}</td>
+                    <td class="${balanceChange >= 0 ? 'positive' : 'negative'}">${balanceChange >= 0 ? '+' : ''}$${balanceChange.toFixed(2)}</td>
+                `;
+            });
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+}
+
+function exportToExcel() {
+    const startDateStr = document.getElementById('tableStartDate').value;
+    const endDateStr = document.getElementById('tableEndDate').value;
+    
+    if (!startDateStr || !endDateStr) {
+        alert('Please select a date range first');
+        return;
+    }
+    
+    // Create CSV content
+    let csv = 'Date,Description,Category,Type,Income,Expense,Balance,Balance Change\n';
+    
+    const startDate = parseDateString(startDateStr);
+    const endDate = parseDateString(endDateStr);
+    
+    let runningBalance = data.initialBalance;
+    const initialBalanceDate = data.initialBalanceDate ? parseDateString(data.initialBalanceDate) : null;
+    
+    if (initialBalanceDate && initialBalanceDate < startDate) {
+        const tempDate = new Date(initialBalanceDate);
+        while (tempDate < startDate) {
+            const bills = getBillsForDate(tempDate);
+            bills.forEach(bill => {
+                runningBalance += bill.amount;
+            });
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+    }
+    
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        const bills = getBillsForDate(currentDate);
+        const dateStr = formatDateString(currentDate);
+        
+        if (bills.length === 0) {
+            csv += `${dateStr},No transactions,,,0,0,${runningBalance.toFixed(2)},0\n`;
+        } else {
+            bills.forEach(bill => {
+                const income = bill.amount > 0 ? bill.amount.toFixed(2) : '0';
+                const expense = bill.amount < 0 ? Math.abs(bill.amount).toFixed(2) : '0';
+                const balanceChange = bill.amount.toFixed(2);
+                
+                runningBalance += bill.amount;
+                
+                const name = bill.name.replace(/,/g, ';'); // Replace commas to avoid CSV issues
+                csv += `${dateStr},"${name}",${bill.category},${bill.type},${income},${expense},${runningBalance.toFixed(2)},${balanceChange}\n`;
+            });
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Create download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `budget-tracker-${startDateStr}-to-${endDateStr}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast('Table exported to Excel (CSV format)');
+}
+
+// ==================== DATA MIGRATION ====================
+
+function migrateData(importedData) {
+    // Handle data migration for future versions
+    const version = importedData.version || '0.0.0';
+    
+    // Default structure for v1.0.0
+    const migratedData = {
+        version: DATA_VERSION,
+        initialBalance: importedData.initialBalance || 0,
+        initialBalanceDate: importedData.initialBalanceDate || null,
+        bills: importedData.bills || [],
+        settings: {
+            graphDateRange: {
+                start: importedData.settings?.graphDateRange?.start || null,
+                end: importedData.settings?.graphDateRange?.end || null
+            },
+            tableDateRange: {
+                start: importedData.settings?.tableDateRange?.start || null,
+                end: importedData.settings?.tableDateRange?.end || null
+            }
+        }
+    };
+    
+    // Future migrations can be added here
+    // if (compareVersions(version, '2.0.0') < 0) {
+    //     // Migrate from 1.x to 2.0.0
+    // }
+    
+    return migratedData;
+}

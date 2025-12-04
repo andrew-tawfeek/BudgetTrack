@@ -24,22 +24,108 @@
             </div>
         </div>
 
-        <div class="controls">
-            <div class="month-nav">
-                <button onclick="previousMonth()">← Previous</button>
-                <div class="month-display" id="monthDisplay"></div>
-                <button onclick="nextMonth()">Next →</button>
-                <button class="today-btn" onclick="goToToday()">Today</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('calendar')">📅 Calendar</button>
+            <button class="tab-btn" onclick="switchTab('graph')">📊 Graph</button>
+            <button class="tab-btn" onclick="switchTab('table')">📋 Table</button>
+        </div>
+
+        <div class="tab-content" id="calendarTab">
+            <div class="controls">
+                <div class="month-nav">
+                    <button onclick="previousMonth()">← Previous</button>
+                    <div class="month-display" id="monthDisplay"></div>
+                    <button onclick="nextMonth()">Next →</button>
+                    <button class="today-btn" onclick="goToToday()">Today</button>
+                </div>
+                <div class="data-controls">
+                    <button class="export" onclick="exportData()">📥 Export JSON</button>
+                    <label for="importFile" class="file-upload-label">📤 Import JSON</label>
+                    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+                    <button class="clear-btn" onclick="clearAllData()">🗑️ Clear All</button>
+                </div>
             </div>
-            <div class="data-controls">
-                <button class="export" onclick="exportData()">📥 Export</button>
-                <label for="importFile" class="file-upload-label">📤 Import</label>
-                <input type="file" id="importFile" accept=".json" onchange="importData(event)">
-                <button class="clear-btn" onclick="clearAllData()">🗑️ Clear All</button>
+
+            <div class="calendar" id="calendar"></div>
+        </div>
+
+        <div class="tab-content hidden" id="graphTab">
+            <div class="graph-controls">
+                <h2>Balance Over Time</h2>
+                <div class="date-range-controls">
+                    <div class="form-group">
+                        <label for="graphStartDate">Start Date:</label>
+                        <input type="date" id="graphStartDate" onchange="updateGraph()">
+                    </div>
+                    <div class="form-group">
+                        <label for="graphEndDate">End Date:</label>
+                        <input type="date" id="graphEndDate" onchange="updateGraph()">
+                    </div>
+                    <button class="btn" onclick="setGraphDateRange('month')">Last Month</button>
+                    <button class="btn" onclick="setGraphDateRange('quarter')">Last 3 Months</button>
+                    <button class="btn" onclick="setGraphDateRange('year')">Last Year</button>
+                </div>
+            </div>
+            <div class="graph-container">
+                <canvas id="balanceChart"></canvas>
+            </div>
+            <div class="graph-stats">
+                <div class="stat-card">
+                    <h3>Total Income</h3>
+                    <p class="stat-value income" id="statIncome">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Expenses</h3>
+                    <p class="stat-value expense" id="statExpenses">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Net Change</h3>
+                    <p class="stat-value" id="statNet">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg Daily</h3>
+                    <p class="stat-value" id="statAvgDaily">$0.00</p>
+                </div>
             </div>
         </div>
 
-        <div class="calendar" id="calendar"></div>
+        <div class="tab-content hidden" id="tableTab">
+            <div class="table-controls">
+                <h2>Transaction Table</h2>
+                <div class="date-range-controls">
+                    <div class="form-group">
+                        <label for="tableStartDate">Start Date:</label>
+                        <input type="date" id="tableStartDate" onchange="updateTable()">
+                    </div>
+                    <div class="form-group">
+                        <label for="tableEndDate">End Date:</label>
+                        <input type="date" id="tableEndDate" onchange="updateTable()">
+                    </div>
+                    <button class="btn" onclick="setTableDateRange('month')">Last Month</button>
+                    <button class="btn" onclick="setTableDateRange('quarter')">Last 3 Months</button>
+                    <button class="btn" onclick="setTableDateRange('year')">Last Year</button>
+                    <button class="btn btn-success" onclick="exportToExcel()">📥 Export to Excel</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="transactionTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Income</th>
+                            <th>Expense</th>
+                            <th>Balance</th>
+                            <th>Balance Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <div class="modal" id="dayModal">
