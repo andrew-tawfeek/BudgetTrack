@@ -5,6 +5,10 @@
 }
 
 :root {
+    /* Logo Size Variables - Adjust these to change the logo size */
+    --logo-width: 64px;
+    --logo-height: 64px;
+    
     --bg-primary: #f5f7fa;
     --bg-secondary: #ffffff;
     --bg-tertiary: #f9fafb;
@@ -69,8 +73,8 @@ body {
 }
 
 .header-logo {
-    width: 32px;
-    height: 32px;
+    width: var(--logo-width);
+    height: var(--logo-height);
     object-fit: contain;
 }
 
