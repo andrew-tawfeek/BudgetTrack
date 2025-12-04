@@ -48,10 +48,14 @@
 
         <div class="tab-content" id="calendarTab">
             <div class="controls">
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchCalendarView('month')" id="monthViewBtn">Month</button>
+                    <button class="view-btn" onclick="switchCalendarView('week')" id="weekViewBtn">Week</button>
+                </div>
                 <div class="month-nav">
-                    <button onclick="previousMonth()">← Previous</button>
+                    <button onclick="previousPeriod()">← Previous</button>
                     <div class="month-display" id="monthDisplay"></div>
-                    <button onclick="nextMonth()">Next →</button>
+                    <button onclick="nextPeriod()">Next →</button>
                     <button class="today-btn" onclick="goToToday()">Today</button>
                 </div>
                 <div class="data-controls">

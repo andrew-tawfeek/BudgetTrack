@@ -6,6 +6,8 @@ let currentYear = currentDate.getFullYear();
 let currentMonth = currentDate.getMonth();
 let selectedDate = null;
 let focusedDay = null; // Track which day is currently focused with keyboard
+let calendarView = 'month'; // 'month' or 'week'
+let currentWeekStart = null; // For week view
 
 // Standardized data format
 let data = {
@@ -59,6 +61,11 @@ function parseDateString(dateStr) {
 }
 
 function renderCalendar() {
+    if (calendarView === 'week') {
+        renderWeekView();
+        return;
+    }
+    
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October', 'November', 'December'];
     
@@ -140,6 +147,160 @@ function renderCalendar() {
         dayCell.onclick = () => openDayModal(day);
         calendarDays.appendChild(dayCell);
     }
+}
+
+function renderWeekView() {
+    // Initialize week start if not set
+    if (!currentWeekStart) {
+        const today = new Date();
+        currentWeekStart = getWeekStart(today);
+    }
+    
+    const weekEnd = new Date(currentWeekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Format display text
+    const startMonth = monthNames[currentWeekStart.getMonth()];
+    const endMonth = monthNames[weekEnd.getMonth()];
+    const startDay = currentWeekStart.getDate();
+    const endDay = weekEnd.getDate();
+    const year = currentWeekStart.getFullYear();
+    
+    let displayText;
+    if (currentWeekStart.getMonth() === weekEnd.getMonth()) {
+        displayText = `${startMonth} ${startDay}-${endDay}, ${year}`;
+    } else if (currentWeekStart.getFullYear() === weekEnd.getFullYear()) {
+        displayText = `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`;
+    } else {
+        displayText = `${startMonth} ${startDay}, ${currentWeekStart.getFullYear()} - ${endMonth} ${endDay}, ${weekEnd.getFullYear()}`;
+    }
+    
+    document.getElementById('monthDisplay').textContent = displayText;
+    
+    const calendar = document.getElementById('calendar');
+    calendar.innerHTML = `
+        <div class="calendar-grid week-view">
+            <div class="day-header">Sun</div>
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+        </div>
+        <div class="calendar-grid week-view" id="calendarDays"></div>
+    `;
+    
+    const calendarDays = document.getElementById('calendarDays');
+    
+    // Render 7 days
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(currentWeekStart);
+        date.setDate(date.getDate() + i);
+        
+        const day = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        
+        // Calculate balance for this specific day
+        const balances = calculateBalances(year, month);
+        const balance = balances[day];
+        
+        const billsOnDay = getBillsForDate(date);
+        const isToday = date.toDateString() === new Date().toDateString();
+        const isFocused = focusedDay === day && currentMonth === month && currentYear === year;
+        
+        const dayCell = document.createElement('div');
+        dayCell.className = 'day-cell';
+        if (isToday) dayCell.classList.add('today');
+        if (isFocused) {
+            dayCell.classList.add('focused');
+            dayCell.tabIndex = 0;
+        }
+        
+        const income = billsOnDay.filter(b => b.amount > 0);
+        const expenses = billsOnDay.filter(b => b.amount < 0);
+        const dayTotal = billsOnDay.reduce((sum, b) => sum + b.amount, 0);
+
+        dayCell.innerHTML = `
+            <div class="day-number">${day}${isToday ? ' <span class="today-badge">Today</span>' : ''}</div>
+            <div class="day-balance ${balance >= 0 ? 'balance-positive' : 'balance-negative'}">
+                Balance: $${balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </div>
+            ${billsOnDay.length > 0 ? `
+                <div class="day-total ${dayTotal >= 0 ? 'total-positive' : 'total-negative'}">
+                    ${dayTotal >= 0 ? '+' : ''}$${Math.abs(dayTotal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </div>
+            ` : ''}
+            <div class="bills-preview">
+                ${billsOnDay.slice(0, 3).map(bill => 
+                    `<div class="bill-item-preview ${bill.amount >= 0 ? 'income-preview' : 'expense-preview'}">
+                        ${bill.amount >= 0 ? '↑' : '↓'} ${bill.name}: ${bill.amount >= 0 ? '+' : ''}$${Math.abs(bill.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </div>`
+                ).join('')}
+                ${billsOnDay.length > 3 ? `<div class="more-bills">+${billsOnDay.length - 3} more...</div>` : ''}
+            </div>
+        `;
+        
+        dayCell.onclick = () => {
+            currentYear = year;
+            currentMonth = month;
+            selectedDate = date;
+            openDayModal(day);
+        };
+        
+        calendarDays.appendChild(dayCell);
+    }
+}
+
+function getWeekStart(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day; // Sunday as start of week
+    return new Date(d.setDate(diff));
+}
+
+function switchCalendarView(view) {
+    calendarView = view;
+    
+    // Update button states
+    document.getElementById('monthViewBtn').classList.toggle('active', view === 'month');
+    document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
+    
+    if (view === 'week' && !currentWeekStart) {
+        currentWeekStart = getWeekStart(new Date(currentYear, currentMonth, 1));
+    }
+    
+    renderCalendar();
+}
+
+function previousPeriod() {
+    if (calendarView === 'week') {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+    } else {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+    }
+    renderCalendar();
+}
+
+function nextPeriod() {
+    if (calendarView === 'week') {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    } else {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+    }
+    renderCalendar();
 }
 
 function calculateBalances(year, month) {
@@ -566,23 +727,11 @@ function deleteBill(billId) {
 }
 
 function previousMonth() {
-    currentMonth--;
-    if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-    }
-    focusedDay = null; // Clear focus when manually changing months
-    renderCalendar();
+    previousPeriod();
 }
 
 function nextMonth() {
-    currentMonth++;
-    if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-    }
-    focusedDay = null; // Clear focus when manually changing months
-    renderCalendar();
+    nextPeriod();
 }
 
 function goToToday() {
@@ -590,6 +739,11 @@ function goToToday() {
     currentYear = today.getFullYear();
     currentMonth = today.getMonth();
     focusedDay = today.getDate();
+    
+    if (calendarView === 'week') {
+        currentWeekStart = getWeekStart(today);
+    }
+    
     renderCalendar();
 }
 
@@ -1051,6 +1205,11 @@ function switchTabDirectly(tabName) {
 
 // Navigate between days with arrow keys
 function navigateDay(offset) {
+    if (calendarView === 'week') {
+        navigateDayWeekView(offset);
+        return;
+    }
+    
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
     // Initialize focused day if not set
@@ -1082,6 +1241,39 @@ function navigateDay(offset) {
         focusedDay = newDay;
         renderCalendar();
     }
+}
+
+function navigateDayWeekView(offset) {
+    // Initialize focused day if not set
+    if (focusedDay === null) {
+        const today = new Date();
+        focusedDay = today.getDate();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+    }
+    
+    // Create current focused date
+    const focusedDate = new Date(currentYear, currentMonth, focusedDay);
+    
+    // Add offset
+    focusedDate.setDate(focusedDate.getDate() + offset);
+    
+    // Update current year, month, and day
+    currentYear = focusedDate.getFullYear();
+    currentMonth = focusedDate.getMonth();
+    focusedDay = focusedDate.getDate();
+    
+    // Check if we need to change weeks
+    const focusedWeekStart = getWeekStart(focusedDate);
+    const currentWeekEnd = new Date(currentWeekStart);
+    currentWeekEnd.setDate(currentWeekEnd.getDate() + 6);
+    
+    // If focused date is outside current week, update week
+    if (focusedDate < currentWeekStart || focusedDate > currentWeekEnd) {
+        currentWeekStart = focusedWeekStart;
+    }
+    
+    renderCalendar();
 }
 
 // Close modal when clicking outside

@@ -174,6 +174,40 @@ body.dark-mode .dark-mode-toggle .moon-icon {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+.view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-secondary);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.view-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.view-btn:hover {
+    background: var(--hover-bg);
+}
+
+.view-btn.active {
+    background: #2563eb;
+    color: white;
+}
+
+body.dark-mode .view-btn.active {
+    background: #3b82f6;
+}
+
 .month-nav {
     display: flex;
     align-items: center;
@@ -247,6 +281,19 @@ body.dark-mode .dark-mode-toggle .moon-icon {
     grid-template-columns: repeat(7, 1fr);
     gap: 8px;
     margin-top: 16px;
+}
+
+.calendar-grid.week-view {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+}
+
+.calendar-grid.week-view .day-cell {
+    min-height: 400px;
+}
+
+.calendar-grid.week-view .day-cell.empty {
+    display: none;
 }
 
 .day-header {
