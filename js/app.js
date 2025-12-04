@@ -536,7 +536,7 @@ function editBill(billId) {
     // Delete the old bill and let the user add the updated one
     data.bills = data.bills.filter(b => b.id !== billId);
     saveToStorage();
-    updateDaySummary();
+    updateBalanceDisplay();
     renderBillsList();
     renderCalendar();
     
@@ -559,7 +559,7 @@ function deleteBill(billId) {
 
     data.bills = data.bills.filter(b => b.id !== billId);
     saveToStorage();
-    updateDaySummary();
+    updateBalanceDisplay();
     renderBillsList();
     renderCalendar();
     showToast(`${bill.name} deleted`);

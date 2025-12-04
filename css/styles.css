@@ -372,6 +372,10 @@ body.dark-mode .balance-negative {
     box-shadow: 0 20px 60px rgba(0,0,0,0.25);
 }
 
+.day-modal-content {
+    max-width: 800px;
+}
+
 body.dark-mode .modal-content {
     background: var(--bg-secondary);
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
